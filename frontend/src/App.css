@@ -58,3 +58,21 @@ aside textarea { min-height: 140px; font-size: 14px; line-height: 1.7; }
 .location-toggle { display: inline-flex; align-items: center; padding: 6px 9px; border: 1px solid #dce3d8; border-radius: 6px; background: white; color: #255c4b; font-size: 11px; font-weight: 600; box-shadow: 0 3px 12px #173f3515; }
 .location-toggle[aria-expanded=true] { background: #255c4b; color: white; border-color: #255c4b; }
 .location-search-panel { margin-top: 8px; }
+
+/* Keep the draft readable and expand with its content. */
+.modal { width: min(720px, 100%); }
+.modal .memo-editor { min-height: 220px; max-height: none; overflow-y: hidden; resize: none; font-size: 14px; line-height: 1.8; padding: 14px; }
+.revision-list { margin-top: 12px; }
+.revision { padding: 0; }
+.revision summary { cursor: pointer; padding: 14px 16px; font-size: 13px; font-weight: 600; color: #405547; }
+.revision summary:hover { background: #f0f5ed; border-radius: 8px; }
+.revision-changed { font-size: 10px; background: #e3f2e9; color: #206441; padding: 3px 7px; border-radius: 4px; margin-left: 12px; }
+.revision-day-content { padding: 0 16px; }
+.revision-entry { padding: 15px 0; border-top: 1px solid #e5eae3; }
+.revision .revision-caption { font-size: 11px; color: #758b78; margin-top: 8px; }
+.revision .revision-memo { font-size: 14px; line-height: 1.8; margin-top: 12px; }
+.memo-added { background: #e0f3e7; color: #17633c; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.memo-removed { font-size: 12px; color: #a43b3b; background: #fff1f0; border-radius: 6px; padding: 10px 12px; margin-top: 14px; }
+.memo-removed strong { font-size: 11px; }
+.memo-removed ul { padding-left: 18px; margin: 8px 0 0; }
+.memo-removed li { white-space: pre-wrap; overflow-wrap: anywhere; }
