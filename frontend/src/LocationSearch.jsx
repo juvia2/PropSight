@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 
 export default function LocationSearch({ map, enabled, drawing }) {
+  const [open, setOpen] = useState(false)
+  const input = useRef(null)
+  const toggle = useRef(null)
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [message, setMessage] = useState('')
@@ -13,6 +16,15 @@ export default function LocationSearch({ map, enabled, drawing }) {
     requestId.current += 1
     marker.current?.setMap(null)
   }, [])
+
+  useEffect(() => {
+    if (open) input.current?.focus()
+  }, [open])
+
+  function closePanel() {
+    setOpen(false)
+    toggle.current?.focus()
+  }
 
   async function search(event) {
     event.preventDefault()
@@ -73,8 +85,11 @@ export default function LocationSearch({ map, enabled, drawing }) {
   }
 
   return <div className="location-search">
+    <button ref={toggle} type="button" className="location-toggle" aria-expanded={open} aria-controls="location-search-panel" onClick={() => setOpen(previous => !previous)}>{open ? '✕ 검색 닫기' : '⌕ 위치 검색'}</button>
+    <div id="location-search-panel" className="location-search-panel" hidden={!open} onKeyDown={event => { if (event.key === 'Escape') { event.stopPropagation(); closePanel() } }}>
+
     <form onSubmit={search} role="search" aria-label="지도 위치 검색">
-      <input aria-label="주소 또는 장소 검색" placeholder="주소 또는 장소 검색 · 예: 성수역" value={query} onChange={event => setQuery(event.target.value)} maxLength={100} disabled={!enabled || drawing} />
+      <input ref={input} aria-label="주소 또는 장소 검색" placeholder="주소 또는 장소 검색 · 예: 성수역" value={query} onChange={event => setQuery(event.target.value)} maxLength={100} disabled={!enabled || drawing} />
       <button type="submit" disabled={!enabled || drawing || searching}>{searching ? '검색 중…' : '검색'}</button>
     </form>
     {!enabled && <p className="location-notice">지도 연결 후 위치를 검색할 수 있습니다.</p>}
@@ -82,5 +97,6 @@ export default function LocationSearch({ map, enabled, drawing }) {
     {message && <p className="location-notice" role="status">{message}</p>}
     {results.length > 0 && <div className="location-results"><div className="location-results-title"><span>검색 결과 {results.length}건</span><button type="button" onClick={clear}>닫기</button></div><ul>{results.map(item => <li key={item.id}><button type="button" disabled={drawing} onClick={() => choose(item)}><strong>{item.name}</strong><span>{item.address}</span></button></li>)}</ul></div>}
     {selected && <div className="location-selected"><div><strong>{selected.name}</strong><span>{selected.address}</span><small>검색 위치입니다. 임장기록은 ‘핀 찍기’로 저장하세요.</small></div><button type="button" onClick={clear} aria-label="검색 위치 지우기">✕</button></div>}
+    </div>
   </div>
 }
