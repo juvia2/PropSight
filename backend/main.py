@@ -5,10 +5,10 @@ from typing import Literal
 from fastapi import FastAPI, Depends, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, model_validator
-from sqlalchemy import select, func, text
+from sqlalchemy import select, func, text, delete
 from sqlalchemy.orm import Session
 from database import engine, get_db
-from models import Base, Property, CommercialBlock, User, Team
+from models import Base, Property, CommercialBlock, User, Team, MemoRevision
 from auth import router as auth_router, CurrentUser
 
 Category = Literal['개발계획', '상권분석', '진행매물']
@@ -90,7 +90,7 @@ def register(resource, model, geometry_type):
             raise HTTPException(404, '데이터를 찾을 수 없습니다.')
         return row
 
-    def assign(db, row, payload):
+    def assign(db, row, payload, user):
         if payload.geometry.type != geometry_type:
             raise HTTPException(422, f'{geometry_type} geometry가 필요합니다.')
         geom = func.ST_SetSRID(func.ST_GeomFromGeoJSON(json.dumps(payload.geometry.model_dump())), 4326)
@@ -99,6 +99,8 @@ def register(resource, model, geometry_type):
         row.name, row.memo, row.category = payload.name, payload.memo, payload.category
         row.geometry = geom
         db.add(row)
+        db.flush()
+        db.add(MemoRevision(resource=resource, record_id=row.id, memo=payload.memo, author_id=user.id))
         db.commit()
         db.refresh(row)
         return feature(db, row)
@@ -118,22 +120,36 @@ def register(resource, model, geometry_type):
     def get_item(item_id: int, user: CurrentUser, db: Session = Depends(get_db)):
         return feature(db, get_row(db, item_id))
 
+    @app.get(f'/api/{resource}/{{item_id}}/revisions', name=f'list_{resource}_revisions')
+    def list_revisions(item_id: int, user: CurrentUser, db: Session = Depends(get_db)):
+        get_row(db, item_id)
+        revisions = db.scalars(select(MemoRevision).where(
+            MemoRevision.resource == resource, MemoRevision.record_id == item_id
+        ).order_by(MemoRevision.id.desc())).all()
+        author_ids = {revision.author_id for revision in revisions}
+        authors = {person.id: person for person in db.scalars(select(User).where(User.id.in_(author_ids)))} if author_ids else {}
+        return [{'id': revision.id, 'memo': revision.memo, 'saved_at': revision.saved_at.isoformat(),
+                 'author_id': revision.author_id,
+                 'author_username': authors[revision.author_id].username,
+                 'author_name': authors[revision.author_id].display_name} for revision in revisions]
+
     @app.post(f'/api/{resource}', status_code=201, name=f'create_{resource}')
     def create_item(payload: FeatureInput, user: CurrentUser, db: Session = Depends(get_db)):
-        return assign(db, model(created_by=user.id, team_id=user.team_id), payload)
+        return assign(db, model(created_by=user.id, team_id=user.team_id), payload, user)
 
     @app.put(f'/api/{resource}/{{item_id}}', name=f'update_{resource}')
     def update_item(item_id: int, payload: FeatureInput, user: CurrentUser, db: Session = Depends(get_db)):
         row = get_row(db, item_id)
         if row.created_by != user.id:
             raise HTTPException(403, '작성자만 수정할 수 있습니다.')
-        return assign(db, row, payload)
+        return assign(db, row, payload, user)
 
     @app.delete(f'/api/{resource}/{{item_id}}', status_code=204, name=f'delete_{resource}')
     def delete_item(item_id: int, user: CurrentUser, db: Session = Depends(get_db)):
         row = get_row(db, item_id)
         if row.created_by != user.id:
             raise HTTPException(403, '작성자만 삭제할 수 있습니다.')
+        db.execute(delete(MemoRevision).where(MemoRevision.resource == resource, MemoRevision.record_id == item_id))
         db.delete(row)
         db.commit()
         return Response(status_code=204)

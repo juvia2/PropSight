@@ -4,6 +4,7 @@ import AuthGate from './AuthGate'
 import { request, jsonOptions } from './api'
 
 const formatCreatedAt = value => value ? new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(value)) : '날짜 미기록'
+const formatSavedAt = value => new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).format(new Date(value))
 const CATEGORIES = ['개발계획', '상권분석', '진행매물']
 const COLORS = { 개발계획: '#7970cb', 상권분석: '#168b80', 진행매물: '#d38b36' }
 const HAS_MAP_KEY = Boolean(import.meta.env.VITE_KAKAO_APP_KEY && import.meta.env.VITE_KAKAO_APP_KEY !== 'YOUR_KAKAO_APP_KEY')
@@ -29,6 +30,8 @@ function Dashboard({ user }) {
   const [busy, setBusy] = useState(false)
   const [pending, setPending] = useState(null)
   const [editing, setEditing] = useState(null)
+  const [revisions, setRevisions] = useState([])
+  const [revisionStatus, setRevisionStatus] = useState('loading')
   const mapNode = useRef(null)
   const map = useRef(null)
   const manager = useRef(null)
@@ -128,6 +131,19 @@ function Dashboard({ user }) {
     return () => overlays.forEach(overlay => overlay.setMap(null))
   }, [visible, mapStatus])
 
+  const editingResource = editing?.resource
+  const editingId = editing?.id
+  useEffect(() => {
+    if (!editingResource || !editingId) return
+    let cancelled = false
+    // oxlint-disable-next-line react/set-state-in-effect
+    setRevisionStatus('loading')
+    request(`/api/${editingResource}/${editingId}/revisions`)
+      .then(data => { if (!cancelled) { setRevisions(data); setRevisionStatus('ready') } })
+      .catch(() => { if (!cancelled) setRevisionStatus('error') })
+    return () => { cancelled = true }
+  }, [editingResource, editingId])
+
   function startDrawing(type) {
     if (!name.trim()) { setError('기록할 장소나 구역의 이름을 먼저 입력하세요.'); return }
     setTeamFilter(''); setAuthorFilter(''); setError(''); draft.current = { name: name.trim(), memo, category }
@@ -149,7 +165,12 @@ function Dashboard({ user }) {
     const values = Object.fromEntries(new FormData(event.currentTarget))
     try {
       const result = await request(`/api/${editing.resource}/${editing.id}`, jsonOptions('PUT', { ...values, geometry: editing.geometry }))
-      setItems(previous => previous.map(x => x.resource === editing.resource && x.id === editing.id ? { ...result, resource: x.resource } : x)); setEditing(null)
+      setItems(previous => previous.map(x => x.resource === editing.resource && x.id === editing.id ? { ...result, resource: x.resource } : x))
+      setEditing(previous => ({ ...result, resource: previous.resource }))
+      try {
+        setRevisions(await request(`/api/${editing.resource}/${editing.id}/revisions`))
+        setRevisionStatus('ready')
+      } catch { setRevisionStatus('error') }
     } catch (e) { setError(e.message) } finally { setBusy(false) }
   }
   async function deleteItem() {
@@ -180,6 +201,6 @@ function Dashboard({ user }) {
       </aside><section className="map-panel" aria-label="카카오 지도"><div ref={mapNode} className="map" />{mapStatus !== 'ready' && <div className="map-placeholder"><div className="map-grid" /><div className="setup"><span className="setup-icon">▦</span><div className="eyebrow">CONNECT YOUR MAP</div><h2>{mapStatus === 'loading' ? '지도를 불러오는 중입니다' : '카카오맵을 연결해 주세요'}</h2><p>JavaScript 앱 키를 설정하면<br />이곳에서 장소와 상권을 지도에 기록할 수 있습니다.</p><code>frontend/.env.local · VITE_KAKAO_APP_KEY</code><small>사이트 도메인: http://localhost:5173</small>{mapStatus === 'error' && <p role="alert">{mapError || '지도 연결 실패 원인을 확인하는 중입니다…'}</p>}{mapStatus === 'error' && <button className="refresh" onClick={() => window.location.reload()}>지도 다시 연결</button>}</div></div>}<div className="map-tag">SEOUL <span>성수동 일대</span></div><div className="map-legend">{CATEGORIES.map(c => <span key={c}><i style={{ background: COLORS[c] }} />{c}</span>)}</div></section></div>
       <footer>PropSight <span>현장에서 발견하고, 지도에 기록하세요.</span><span>좌표계 WGS 84 · PostGIS</span></footer>
     </main>
-    {editing && <div className="modal-backdrop"><section className="modal" role="dialog" aria-modal="true" aria-label="기록 수정"><div className="panel-title"><h2>{editing.properties.created_by === user.id ? '현장 기록 수정' : '현장 기록 보기'}</h2><button disabled={busy} onClick={() => setEditing(null)}>✕</button></div><p className="author-label">작성 날짜: <time dateTime={editing.properties.created_at || undefined}>{formatCreatedAt(editing.properties.created_at)}</time> · {editing.properties.team_name} · {editing.properties.author_name} {editing.properties.author_username ? `(@${editing.properties.author_username})` : ''}</p><form key={`${editing.resource}-${editing.id}`} onSubmit={updateItem}><fieldset disabled={busy || editing.properties.created_by !== user.id}><label>이름<input name="name" required maxLength={200} defaultValue={editing.properties.name} /></label><label>카테고리<select name="category" defaultValue={editing.properties.category}>{CATEGORIES.map(c => <option key={c}>{c}</option>)}</select></label><label>메모<textarea name="memo" maxLength={10000} defaultValue={editing.properties.memo} /></label><div className="modal-actions"><button type="button" className="danger" disabled={busy} onClick={deleteItem}>삭제</button><button disabled={busy} type="submit">변경 저장</button></div></fieldset>{editing.properties.created_by !== user.id && <p className="hint">작성자만 수정·삭제할 수 있습니다.</p>}</form>{error && <p role="alert" className="error">{error}</p>}</section></div>}
+    {editing && <div className="modal-backdrop"><section className="modal" role="dialog" aria-modal="true" aria-label="기록 수정"><div className="panel-title"><h2>{editing.properties.created_by === user.id ? '현장 기록 수정' : '현장 기록 보기'}</h2><button disabled={busy} onClick={() => setEditing(null)}>✕</button></div><p className="author-label">작성 날짜: <time dateTime={editing.properties.created_at || undefined}>{formatCreatedAt(editing.properties.created_at)}</time> · {editing.properties.team_name} · {editing.properties.author_name} {editing.properties.author_username ? `(@${editing.properties.author_username})` : ''}</p><form key={`${editing.resource}-${editing.id}`} onSubmit={updateItem}><fieldset disabled={busy || editing.properties.created_by !== user.id}><label>이름<input name="name" required maxLength={200} defaultValue={editing.properties.name} /></label><label>카테고리<select name="category" defaultValue={editing.properties.category}>{CATEGORIES.map(c => <option key={c}>{c}</option>)}</select></label><label>메모<textarea name="memo" maxLength={10000} defaultValue={editing.properties.memo} /></label><div className="modal-actions"><button type="button" className="danger" disabled={busy} onClick={deleteItem}>삭제</button><button disabled={busy} type="submit">변경 저장</button></div></fieldset>{editing.properties.created_by !== user.id && <p className="hint">작성자만 수정·삭제할 수 있습니다.</p>}</form><section className="revision-section" aria-label="메모 저장 이력"><div className="panel-title"><h3>메모 저장 이력</h3><span>{revisionStatus === 'ready' ? `${revisions.length}건` : ''}</span></div>{revisionStatus === 'loading' && <p className="hint">이력을 불러오는 중…</p>}{revisionStatus === 'error' && <p role="alert" className="hint">이력을 불러오지 못했습니다. 기록을 다시 열어 주세요.</p>}{revisionStatus === 'ready' && (revisions.length ? <ol className="revision-list">{revisions.map(revision => <li key={revision.id} className="revision"><div className="revision-meta"><time dateTime={revision.saved_at}>{formatSavedAt(revision.saved_at)}</time><span>{revision.author_name} (@{revision.author_username})</span></div><p>{revision.memo || '메모 없음'}</p></li>)}</ol> : <p className="hint">이전 저장 이력이 없습니다. 다음 저장부터 기록됩니다.</p>)}</section>{error && <p role="alert" className="error">{error}</p>}</section></div>}
   </div>
 }

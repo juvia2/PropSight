@@ -55,6 +55,14 @@ try:
             created_at = item['properties']['created_at']
             assert item['properties']['created_by'] == first['user']['id']
             assert item['properties']['team_id'] == first['user']['team_id']
+            revision_path = path + '/revisions'
+            call(revision_path, expected=401, client=anonymous)
+            first_revisions = call(revision_path)
+            assert len(first_revisions) == 1
+            assert first_revisions[0]['memo'] == payload['memo']
+            assert first_revisions[0]['author_username'] == 'test_' + suffix
+            assert first_revisions[0]['saved_at']
+            assert len(call(revision_path, client=other)) == 1
             call(path, 'PUT', payload, 403, client=other)
             call(path, 'DELETE', expected=403, client=other)
             call(f'/api/{resource}', 'POST', {**payload, 'created_by': second['user']['id']}, 422)
@@ -67,11 +75,17 @@ try:
             collection = call(f'/api/{resource}?' + urlencode({'category': category}))
             assert all(x['properties']['category'] == category for x in collection['features'])
             assert any(x['id'] == item['id'] for x in collection['features'])
-            updated = call(path, 'PUT', {**payload, 'category': '진행매물', 'name': '수정 검증'})
+            updated = call(path, 'PUT', {**payload, 'category': '진행매물', 'name': '수정 검증', 'memo': '두 번째 메모'})
             assert updated['properties']['name'] == '수정 검증'
             assert updated['properties']['created_at'] == created_at
             assert updated['properties']['category'] == '진행매물'
+            revisions = call(revision_path)
+            assert len(revisions) == 2
+            assert revisions[0]['memo'] == '두 번째 메모'
+            assert revisions[0]['author_id'] == first['user']['id']
+            assert revisions[1]['memo'] == '검증 후 삭제'
             call(path, 'DELETE', expected=204); created.remove(path)
+            call(revision_path, expected=404)
             call(path, expected=404)
         call(f'/api/{resource}', 'POST', {**payload, 'category': 'invalid'}, 422)
         call(f'/api/{resource}', 'POST', {**payload, 'name': '  '}, 422)
@@ -87,7 +101,7 @@ try:
     call('/api/auth/logout', 'POST', expected=204)
     call('/api/properties', expected=401)
     call('/api/auth/login', 'POST', {'username': 'test_' + suffix, 'password': 'test-password-123'})
-    print('PASS: login, team invitations, author attribution, filters, ownership, session invalidation, both geometry types, all categories, GeoJSON roundtrip, CRUD, validation, CORS, frontend HTTP')
+    print('PASS: memo revision history, login, team invitations, author attribution, filters, ownership, session invalidation, both geometry types, all categories, GeoJSON roundtrip, CRUD, validation, CORS, frontend HTTP')
 finally:
     for path in created:
         call(path, 'DELETE', expected=204)

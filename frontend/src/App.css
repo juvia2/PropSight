@@ -20,3 +20,15 @@ header{height:87px;background:#fff;border-bottom:1px solid #e2e7e0;display:flex;
 .record p { font-size: 12px; white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.5; }
 .record-author { margin-top: 7px; font-size: 10px; }
 @media (max-width: 650px) { .record-list { max-height: 420px; } }
+
+/* Saved memo snapshots in the record detail dialog. */
+.modal { width: min(600px, 100%); max-height: min(90vh, 900px); overflow-y: auto; }
+.revision-section { border-top: 1px solid #e5eae3; margin-top: 22px; padding-top: 20px; }
+.revision-section .panel-title { margin-bottom: 12px; }
+.revision-section h3 { font-size: 14px; margin: 0; color: #334f40; }
+.revision-section .panel-title span { font-size: 11px; color: #87938b; }
+.revision-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.revision { border: 1px solid #e5eae3; border-radius: 8px; background: #fafbf9; padding: 14px; }
+.revision-meta { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 5px 14px; color: #5e7666; font-size: 11px; }
+.revision-meta span { font-weight: 600; }
+.revision p { white-space: pre-wrap; overflow-wrap: anywhere; color: #405547; font-size: 12px; margin-top: 9px; }

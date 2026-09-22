@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import String, Text, CheckConstraint, ForeignKey, DateTime, func
+from sqlalchemy import String, Text, CheckConstraint, ForeignKey, DateTime, Index, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from geoalchemy2 import Geometry
 
@@ -50,3 +50,16 @@ class LoginSession(Base):
     token_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'), index=True)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+class MemoRevision(Base):
+    __tablename__ = 'memo_revisions'
+    __table_args__ = (
+        CheckConstraint("resource IN ('properties', 'commercial_blocks')"),
+        Index('ix_memo_revisions_record', 'resource', 'record_id', 'id'),
+    )
+    id: Mapped[int] = mapped_column(primary_key=True)
+    resource: Mapped[str] = mapped_column(String(32))
+    record_id: Mapped[int] = mapped_column()
+    memo: Mapped[str] = mapped_column(Text)
+    author_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    saved_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
