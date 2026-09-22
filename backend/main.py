@@ -60,6 +60,9 @@ async def lifespan(app):
         for table in ('properties', 'commercial_blocks'):
             connection.execute(text(f'ALTER TABLE {table} ADD COLUMN IF NOT EXISTS created_by INTEGER REFERENCES users(id)'))
             connection.execute(text(f'ALTER TABLE {table} ADD COLUMN IF NOT EXISTS team_id INTEGER REFERENCES teams(id)'))
+            # Historical rows have no reliable creation time; leave them NULL.
+            connection.execute(text(f'ALTER TABLE {table} ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ'))
+            connection.execute(text(f'ALTER TABLE {table} ALTER COLUMN created_at SET DEFAULT CURRENT_TIMESTAMP'))
             connection.execute(text(f'CREATE INDEX IF NOT EXISTS ix_{table}_created_by ON {table}(created_by)'))
             connection.execute(text(f'CREATE INDEX IF NOT EXISTS ix_{table}_team_id ON {table}(team_id)'))
     yield
@@ -73,7 +76,7 @@ def feature(db, row):
     geometry = db.scalar(select(func.ST_AsGeoJSON(row.geometry)))
     author = db.get(User, row.created_by) if row.created_by else None
     team = db.get(Team, row.team_id) if row.team_id else None
-    return {'type': 'Feature', 'id': row.id, 'geometry': json.loads(geometry), 'properties': {'id': row.id, 'name': row.name, 'memo': row.memo, 'category': row.category, 'created_by': row.created_by, 'team_id': row.team_id, 'author_name': author.display_name if author else '작성자 미지정', 'author_username': author.username if author else None, 'team_name': team.name if team else '팀 미지정'}}
+    return {'type': 'Feature', 'id': row.id, 'geometry': json.loads(geometry), 'properties': {'id': row.id, 'name': row.name, 'memo': row.memo, 'category': row.category, 'created_at': row.created_at.isoformat() if row.created_at else None, 'created_by': row.created_by, 'team_id': row.team_id, 'author_name': author.display_name if author else '작성자 미지정', 'author_username': author.username if author else None, 'team_name': team.name if team else '팀 미지정'}}
 
 @app.get('/health')
 def health(db: Session = Depends(get_db)):

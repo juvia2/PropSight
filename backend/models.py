@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import String, Text, CheckConstraint, ForeignKey, DateTime
+from sqlalchemy import String, Text, CheckConstraint, ForeignKey, DateTime, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from geoalchemy2 import Geometry
 
@@ -13,6 +13,7 @@ class Property(Base):
     name: Mapped[str] = mapped_column(String(200))
     memo: Mapped[str] = mapped_column(Text, default='')
     category: Mapped[str] = mapped_column(String(20), index=True)
+    created_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, server_default=func.now())
     created_by: Mapped[int | None] = mapped_column(ForeignKey('users.id'), index=True)
     team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'), index=True)
     geometry = mapped_column(Geometry('POINT', srid=4326), nullable=False)
@@ -24,6 +25,7 @@ class CommercialBlock(Base):
     name: Mapped[str] = mapped_column(String(200))
     memo: Mapped[str] = mapped_column(Text, default='')
     category: Mapped[str] = mapped_column(String(20), index=True)
+    created_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, server_default=func.now())
     created_by: Mapped[int | None] = mapped_column(ForeignKey('users.id'), index=True)
     team_id: Mapped[int | None] = mapped_column(ForeignKey('teams.id'), index=True)
     geometry = mapped_column(Geometry('POLYGON', srid=4326), nullable=False)

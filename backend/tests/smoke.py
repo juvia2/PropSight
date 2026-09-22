@@ -51,6 +51,8 @@ try:
             item = call(f'/api/{resource}', 'POST', payload, 201)
             path = f'/api/{resource}/{item["id"]}'
             created.append(path)
+            assert item['properties']['created_at']
+            created_at = item['properties']['created_at']
             assert item['properties']['created_by'] == first['user']['id']
             assert item['properties']['team_id'] == first['user']['team_id']
             call(path, 'PUT', payload, 403, client=other)
@@ -67,6 +69,7 @@ try:
             assert any(x['id'] == item['id'] for x in collection['features'])
             updated = call(path, 'PUT', {**payload, 'category': '진행매물', 'name': '수정 검증'})
             assert updated['properties']['name'] == '수정 검증'
+            assert updated['properties']['created_at'] == created_at
             assert updated['properties']['category'] == '진행매물'
             call(path, 'DELETE', expected=204); created.remove(path)
             call(path, expected=404)
