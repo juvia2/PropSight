@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => ({
         let result = { code: 'missing_key', message: 'frontend/.env.local에 JavaScript 키를 입력하세요.' }
         if (key && key !== 'YOUR_KAKAO_APP_KEY') {
           try {
-            const response = await fetch(`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${encodeURIComponent(key)}&libraries=drawing&autoload=false`, { headers: { Referer: `${origin}/` }, signal: AbortSignal.timeout(7000) })
+            const response = await fetch(`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${encodeURIComponent(key)}&libraries=drawing,services&autoload=false`, { headers: { Referer: `${origin}/` }, signal: AbortSignal.timeout(7000) })
             const body = response.ok ? '' : await response.text()
             if (response.ok) result = { code: 'ok', message: '카카오 인증은 정상입니다. 네트워크 또는 브라우저 차단 설정을 확인하고 다시 연결하세요.' }
             else if (body.includes('disabled OPEN_MAP_AND_LOCAL')) result = { code: 'service_disabled', message: '카카오맵 서비스가 꺼져 있습니다. 카카오 개발자 콘솔 → PropSight 앱 → 카카오맵 → 사용 설정을 활성화한 뒤 다시 연결하세요.' }

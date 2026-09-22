@@ -4,7 +4,7 @@ header{height:87px;background:#fff;border-bottom:1px solid #e2e7e0;display:flex;
 /* Give field notes enough room to scan on desktop-sized viewports. */
 @media (min-width: 901px) {
   main { max-width: none; }
-  .dashboard { grid-template-columns: clamp(420px, 33vw, 560px) minmax(0, 1fr); }
+  .dashboard { grid-template-columns: clamp(460px, 39vw, 700px) minmax(0, 1fr); }
   aside { padding: 28px; }
 }
 @media (min-width: 651px) and (max-width: 900px) {
@@ -32,3 +32,22 @@ header{height:87px;background:#fff;border-bottom:1px solid #e2e7e0;display:flex;
 .revision-meta { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 5px 14px; color: #5e7666; font-size: 11px; }
 .revision-meta span { font-weight: 600; }
 .revision p { white-space: pre-wrap; overflow-wrap: anywhere; color: #405547; font-size: 12px; margin-top: 9px; }
+
+aside textarea { min-height: 140px; font-size: 14px; line-height: 1.7; }
+.location-search { position: absolute; top: 18px; left: 18px; right: 18px; z-index: 5; max-width: 480px; }
+.location-search form { display: flex; gap: 8px; padding: 10px; background: white; border: 1px solid #dce3d8; border-radius: 9px; box-shadow: 0 3px 15px #173f3515; }
+.location-search input { margin: 0; min-width: 0; font-size: 13px; }
+.location-search form button { flex-shrink: 0; background: #255c4b; color: white; border: 0; border-radius: 6px; padding: 10px 15px; }
+.location-notice { background: #fffffff5; padding: 8px 12px; font-size: 12px; color: #63776b; border-radius: 6px; margin-top: 5px; }
+.location-results,.location-selected { margin-top: 7px; background: white; border: 1px solid #dce3d8; border-radius: 9px; box-shadow: 0 5px 20px #173f3515; }
+.location-results-title { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; font-size: 12px; }
+.location-results-title button,.location-selected>button { border: 0; background: none; color: #63776b; padding: 5px; }
+.location-results ul { list-style: none; margin: 0; padding: 0; max-height: 260px; overflow-y: auto; }
+.location-results li button { width: 100%; border: 0; border-top: 1px solid #edf0e9; background: white; text-align: left; padding: 12px 14px; color: #334f40; }
+.location-results li button:hover { background: #f1f6ee; }
+.location-results strong,.location-selected strong { display: block; font-size: 13px; }
+.location-results li span,.location-selected span { display: block; font-size: 12px; color: #758b78; margin-top: 4px; overflow-wrap: anywhere; }
+.location-selected { display: flex; justify-content: space-between; gap: 8px; padding: 12px 14px; }
+.location-selected small { display: block; font-size: 10px; color: #87938b; margin-top: 8px; }
+.map-tag { display: none; }
+@media (max-width: 650px) { .location-search { top: 12px; left: 12px; right: 12px; } .location-search input { font-size: 12px; } }
