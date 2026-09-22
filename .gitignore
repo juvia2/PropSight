@@ -1,0 +1,24 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.env
+.streamlit/secrets.toml
+node_modules/
+dist/
+*.log
+.DS_Store
+*.sqlite3
+*.db
+
+# Previous local Streamlit/MySQL prototype; retained locally only.
+/app.py
+/compose.yaml
+/database.py
+/geometry.py
+/models.py
+/requirements.txt
+/tests/
+
+# Local credentials and generated bundles
+.env.*
+!.env.example
