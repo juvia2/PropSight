@@ -1,5 +1,9 @@
 import json
 import math
+import os
+from pathlib import Path
+from fastapi.staticfiles import StaticFiles
+from deployment import ALLOWED_ORIGINS
 from contextlib import asynccontextmanager
 from typing import Literal
 from fastapi import FastAPI, Depends, HTTPException, Response
@@ -8,8 +12,10 @@ from pydantic import BaseModel, Field, model_validator
 from sqlalchemy import select, func, text, delete
 from sqlalchemy.orm import Session
 from database import engine, get_db
-from models import Base, Property, CommercialBlock, User, Team, MemoRevision
+from models import Base, Property, CommercialBlock, User, Team, MemoRevision, Attachment, PublicDataSnapshot
 from auth import router as auth_router, CurrentUser
+from attachments import register_attachments
+from public_data import router as public_data_router, register_public_data
 
 Category = Literal['개발계획', '상권분석', '진행매물']
 
@@ -68,9 +74,10 @@ async def lifespan(app):
     yield
 
 app = FastAPI(title='PropSight API', lifespan=lifespan)
-app.add_middleware(CORSMiddleware, allow_origins=['http://localhost:5173', 'http://127.0.0.1:5173'], allow_methods=['*'], allow_headers=['*'], allow_credentials=True)
+app.add_middleware(CORSMiddleware, allow_origins=sorted(ALLOWED_ORIGINS), allow_methods=['*'], allow_headers=['*'], allow_credentials=True)
 
 app.include_router(auth_router)
+app.include_router(public_data_router)
 
 def feature(db, row):
     geometry = db.scalar(select(func.ST_AsGeoJSON(row.geometry)))
@@ -84,6 +91,8 @@ def health(db: Session = Depends(get_db)):
     return {'status': 'ok', 'database': 'PostGIS'}
 
 def register(resource, model, geometry_type):
+    register_attachments(app, resource, model)
+    register_public_data(app, resource, model)
     def get_row(db, item_id):
         row = db.get(model, item_id)
         if row is None:
@@ -146,13 +155,24 @@ def register(resource, model, geometry_type):
 
     @app.delete(f'/api/{resource}/{{item_id}}', status_code=204, name=f'delete_{resource}')
     def delete_item(item_id: int, user: CurrentUser, db: Session = Depends(get_db)):
-        row = get_row(db, item_id)
+        row = db.scalar(select(model).where(model.id == item_id).with_for_update())
+        if row is None:
+            raise HTTPException(404, '데이터를 찾을 수 없습니다.')
         if row.created_by != user.id:
             raise HTTPException(403, '작성자만 삭제할 수 있습니다.')
         db.execute(delete(MemoRevision).where(MemoRevision.resource == resource, MemoRevision.record_id == item_id))
+        db.execute(delete(PublicDataSnapshot).where(PublicDataSnapshot.resource == resource, PublicDataSnapshot.record_id == item_id))
+        db.execute(delete(Attachment).where(Attachment.resource == resource, Attachment.record_id == item_id))
         db.delete(row)
         db.commit()
         return Response(status_code=204)
 
 register('properties', Property, 'Point')
 register('commercial_blocks', CommercialBlock, 'Polygon')
+
+# Mount after API routes so production serves the UI and API on one origin.
+frontend_dist = Path(os.getenv('FRONTEND_DIST', Path(__file__).resolve().parents[1] / 'frontend' / 'dist'))
+if os.getenv('SERVE_FRONTEND') == '1':
+    if not (frontend_dist / 'index.html').is_file():
+        raise RuntimeError('Frontend build is missing. Build the deployment image first.')
+    app.mount('/', StaticFiles(directory=frontend_dist, html=True), name='frontend')

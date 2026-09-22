@@ -4,6 +4,8 @@ import AuthGate from './AuthGate'
 import LocationSearch from './LocationSearch'
 import MemoEditor from './MemoEditor'
 import MemoHistory from './MemoHistory'
+import Attachments from './Attachments'
+import PublicData from './PublicData'
 import { request, jsonOptions } from './api'
 
 const formatCreatedAt = value => value ? new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(value)) : '날짜 미기록'
@@ -20,6 +22,9 @@ function Dashboard({ user }) {
   const [teamFilter, setTeamFilter] = useState('')
   const [authorFilter, setAuthorFilter] = useState('')
   const [active, setActive] = useState(CATEGORIES)
+  const [cadastral, setCadastral] = useState(false)
+  const [lookupOpen, setLookupOpen] = useState(false)
+  const [lookupBusy, setLookupBusy] = useState(false)
   const [category, setCategory] = useState(CATEGORIES[0])
   const [name, setName] = useState('')
   const [memo, setMemo] = useState('')
@@ -61,6 +66,7 @@ function Dashboard({ user }) {
       const resource = payload.geometry.type === 'Point' ? 'properties' : 'commercial_blocks'
       const feature = await request(`/api/${resource}`, jsonOptions('POST', payload))
       setItems(previous => [{ ...feature, resource }, ...previous])
+      setEditing({ ...feature, resource })
       setPending(null); setDrawing(false); setName(''); setMemo('')
     } catch (e) { setError(e.message); setPending(payload) }
     finally { setBusy(false) }
@@ -133,6 +139,14 @@ function Dashboard({ user }) {
     return () => overlays.forEach(overlay => overlay.setMap(null))
   }, [visible, mapStatus])
 
+  useEffect(() => {
+    if (mapStatus !== 'ready' || !map.current || !cadastral) return
+    const currentMap = map.current
+    const layer = window.kakao.maps.MapTypeId.USE_DISTRICT
+    currentMap.addOverlayMapTypeId(layer)
+    return () => currentMap.removeOverlayMapTypeId(layer)
+  }, [cadastral, mapStatus])
+
   const editingResource = editing?.resource
   const editingId = editing?.id
   useEffect(() => {
@@ -188,13 +202,14 @@ function Dashboard({ user }) {
     <header><a className="brand" href="/">▦ <span>PropSight<small>COMMERCIAL REAL ESTATE</small></span></a><div className="workspace">임장 워크스페이스</div><span className={`connection ${status.includes('실패') ? 'offline' : ''}`}>● {status}</span></header>
     <main>
       <section className="heading"><div><div className="eyebrow">YOUR NEXT OPPORTUNITY, MAPPED.</div><h1>도시의 변화를 읽는 지도</h1><p>개발 동향부터 현장 매물까지, 한곳에서 기록하고 살펴보세요.</p></div><button className="refresh" onClick={() => { setError(''); reload() }}>↻ 데이터 새로고침</button></section>
-      <section className="filterbar"><span className="filter-label">지도 레이어</span><div className="toggles" role="group" aria-label="지도 카테고리 필터">{CATEGORIES.map(c => <button key={c} aria-pressed={active.includes(c)} className={active.includes(c) ? 'selected' : ''} style={{ '--category': COLORS[c] }} onClick={() => setActive(previous => previous.includes(c) ? previous.filter(x => x !== c) : [...previous, c])}><i />{c}<b>{items.filter(x => x.properties.category === c).length}</b></button>)}</div><span className="filter-count">현재 표시 <strong>{visible.length}</strong>건</span></section>
+      <section className="map-tools" aria-label="지도 및 공공자료 도구"><div className="map-tools-row"><span className="map-tools-title">지도 · 자료 도구</span><div className="map-tools-actions"><button type="button" className="cadastral-toggle" aria-pressed={cadastral} disabled={mapStatus !== 'ready'} onClick={() => setCadastral(value => !value)}>지적편집도</button><button type="button" className="refresh" onClick={() => setLookupOpen(true)}>공공자료 조회</button></div></div>{cadastral && <p className="cadastral-note">지적편집도는 참고용이며 현행 지적 정보와 다를 수 있습니다.</p>}</section>
+      <section className="filterbar" aria-label="현장기록 지도 레이어"><span className="filter-label">현장기록 레이어</span><div className="toggles" role="group" aria-label="지도 카테고리 필터">{CATEGORIES.map(c => <button key={c} aria-pressed={active.includes(c)} className={active.includes(c) ? 'selected' : ''} style={{ '--category': COLORS[c] }} onClick={() => setActive(previous => previous.includes(c) ? previous.filter(x => x !== c) : [...previous, c])}><i />{c}<b>{items.filter(x => x.properties.category === c).length}</b></button>)}</div><span className="filter-count">현재 표시 <strong>{visible.length}</strong>건</span></section>
       <section className="people-filters" aria-label="팀과 작성자 필터"><label>팀별 조회<select value={teamFilter} onChange={e => { setTeamFilter(e.target.value); setAuthorFilter('') }}><option value="">전체 팀</option>{directory.teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label><label>작성자별 조회<select value={authorFilter} onChange={e => setAuthorFilter(e.target.value)}><option value="">전체 직원</option>{directory.users.filter(u => !teamFilter || String(u.team_id) === teamFilter).map(u => <option key={u.id} value={u.id}>{u.display_name} (@{u.username})</option>)}</select></label><button className="refresh" onClick={() => { setTeamFilter(String(user.team_id)); setAuthorFilter('') }}>내 팀</button><button className="refresh" onClick={() => { setTeamFilter(String(user.team_id)); setAuthorFilter(String(user.id)) }}>내 기록</button><button className="refresh" onClick={() => { setTeamFilter(''); setAuthorFilter('') }}>전체 보기</button></section>
       {error && <div role="alert" className="error">{error}<button onClick={() => setError('')}>닫기</button></div>}
       <div className="dashboard"><aside>
         <div className="panel-title"><h2>현장 기록</h2><span>NEW RECORD</span></div>
         <p className="author-label">작성자: {user.team_name} · {user.display_name} (@{user.username})</p><fieldset disabled={drawing || busy || !!pending}><label>저장 카테고리<select value={category} onChange={e => setCategory(e.target.value)}>{CATEGORIES.map(c => <option key={c}>{c}</option>)}</select></label><label>장소 · 구역 이름<input maxLength={200} placeholder="예: 성수역 북측 개발 예정지" value={name} onChange={e => setName(e.target.value)} /></label><label>임장 메모<textarea maxLength={10000} placeholder="유동 인구, 입지 특성, 확인할 사항…" value={memo} onChange={e => setMemo(e.target.value)} /></label><div className="draw-buttons"><button disabled={mapStatus !== 'ready'} onClick={() => startDrawing('MARKER')}>⌖ 핀 찍기</button><button disabled={mapStatus !== 'ready'} onClick={() => startDrawing('POLYGON')}>⬡ 구역 그리기</button></div></fieldset>
-        <p className="hint">선택한 카테고리로 그리기 완료 시 자동 저장됩니다. 다각형은 마우스 오른쪽 클릭으로 완성하세요.</p>
+        <p className="hint">선택한 카테고리로 그리기 완료 시 자동 저장됩니다. 다각형은 마우스 오른쪽 클릭으로 완성하세요. 저장 후 열리는 상세 화면에서 이미지·파일을 첨부할 수 있습니다.</p>
         {drawing && <button className="cancel" onClick={cancelDrawing}>그리기 취소</button>}
         {busy && <p role="status">저장 중…</p>}
         {pending && !busy && <div className="retry"><p>저장하지 못한 도형이 있습니다.</p><button onClick={() => saveDraft(pending)}>다시 저장</button><button onClick={() => setPending(null)}>버리기</button></div>}
@@ -203,6 +218,7 @@ function Dashboard({ user }) {
       </aside><section className="map-panel" aria-label="카카오 지도"><div ref={mapNode} className="map" /><LocationSearch map={map} enabled={mapStatus === 'ready'} drawing={drawing || busy || !!pending} />{mapStatus !== 'ready' && <div className="map-placeholder"><div className="map-grid" /><div className="setup"><span className="setup-icon">▦</span><div className="eyebrow">CONNECT YOUR MAP</div><h2>{mapStatus === 'loading' ? '지도를 불러오는 중입니다' : '카카오맵을 연결해 주세요'}</h2><p>JavaScript 앱 키를 설정하면<br />이곳에서 장소와 상권을 지도에 기록할 수 있습니다.</p><code>frontend/.env.local · VITE_KAKAO_APP_KEY</code><small>사이트 도메인: http://localhost:5173</small>{mapStatus === 'error' && <p role="alert">{mapError || '지도 연결 실패 원인을 확인하는 중입니다…'}</p>}{mapStatus === 'error' && <button className="refresh" onClick={() => window.location.reload()}>지도 다시 연결</button>}</div></div>}<div className="map-tag">SEOUL <span>성수동 일대</span></div><div className="map-legend">{CATEGORIES.map(c => <span key={c}><i style={{ background: COLORS[c] }} />{c}</span>)}</div></section></div>
       <footer>PropSight <span>현장에서 발견하고, 지도에 기록하세요.</span><span>좌표계 WGS 84 · PostGIS</span></footer>
     </main>
-    {editing && <div className="modal-backdrop"><section className="modal" role="dialog" aria-modal="true" aria-label="기록 수정"><div className="panel-title"><h2>{editing.properties.created_by === user.id ? '현장 기록 수정' : '현장 기록 보기'}</h2><button disabled={busy} onClick={() => setEditing(null)}>✕</button></div><p className="author-label">작성 날짜: <time dateTime={editing.properties.created_at || undefined}>{formatCreatedAt(editing.properties.created_at)}</time> · {editing.properties.team_name} · {editing.properties.author_name} {editing.properties.author_username ? `(@${editing.properties.author_username})` : ''}</p><form key={`${editing.resource}-${editing.id}`} onSubmit={updateItem}><fieldset disabled={busy || editing.properties.created_by !== user.id}><label>이름<input name="name" required maxLength={200} defaultValue={editing.properties.name} /></label><label>카테고리<select name="category" defaultValue={editing.properties.category}>{CATEGORIES.map(c => <option key={c}>{c}</option>)}</select></label><label>메모<MemoEditor defaultValue={editing.properties.memo} /></label><div className="modal-actions"><button type="button" className="danger" disabled={busy} onClick={deleteItem}>삭제</button><button disabled={busy} type="submit">변경 저장</button></div></fieldset>{editing.properties.created_by !== user.id && <p className="hint">작성자만 수정·삭제할 수 있습니다.</p>}</form><MemoHistory key={editing.resource + editing.id} revisions={revisions} status={revisionStatus} />{error && <p role="alert" className="error">{error}</p>}</section></div>}
+    {lookupOpen && <div className="modal-backdrop"><section className="modal" role="dialog" aria-modal="true" aria-label="공공자료 조회"><div className="panel-title"><h2>공공자료 조회</h2><button type="button" aria-label="공공자료 조회 닫기" disabled={lookupBusy} onClick={() => setLookupOpen(false)}>✕</button></div><PublicData standalone canEdit busy={lookupBusy} onBusyChange={setLookupBusy} mapReady={mapStatus === 'ready'} /></section></div>}
+    {editing && <div className="modal-backdrop"><section className="modal" role="dialog" aria-modal="true" aria-label="기록 수정"><div className="panel-title"><h2>{editing.properties.created_by === user.id ? '현장 기록 수정' : '현장 기록 보기'}</h2><button disabled={busy} onClick={() => setEditing(null)}>✕</button></div><p className="author-label">작성 날짜: <time dateTime={editing.properties.created_at || undefined}>{formatCreatedAt(editing.properties.created_at)}</time> · {editing.properties.team_name} · {editing.properties.author_name} {editing.properties.author_username ? `(@${editing.properties.author_username})` : ''}</p><form key={`${editing.resource}-${editing.id}`} onSubmit={updateItem}><fieldset disabled={busy || editing.properties.created_by !== user.id}><label>이름<input name="name" required maxLength={200} defaultValue={editing.properties.name} /></label><label>카테고리<select name="category" defaultValue={editing.properties.category}>{CATEGORIES.map(c => <option key={c}>{c}</option>)}</select></label><label>메모<MemoEditor defaultValue={editing.properties.memo} /></label><div className="modal-actions"><button type="button" className="danger" disabled={busy} onClick={deleteItem}>삭제</button><button disabled={busy} type="submit">변경 저장</button></div></fieldset>{editing.properties.created_by !== user.id && <p className="hint">작성자만 수정·삭제할 수 있습니다.</p>}</form><Attachments key={editing.resource + editing.id} resource={editing.resource} recordId={editing.id} canEdit={editing.properties.created_by === user.id} busy={busy} onBusyChange={setBusy} /><PublicData key={editing.resource + editing.id} resource={editing.resource} recordId={editing.id} geometry={editing.geometry} canEdit={editing.properties.created_by === user.id} busy={busy} onBusyChange={setBusy} mapReady={mapStatus === 'ready'} /><MemoHistory key={editing.resource + editing.id} revisions={revisions} status={revisionStatus} />{error && <p role="alert" className="error">{error}</p>}</section></div>}
   </div>
 }

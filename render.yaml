@@ -1,0 +1,28 @@
+# Free web hosting. Use a separate Neon Free PostGIS database.
+services:
+  - type: web
+    name: propsight
+    runtime: docker
+    region: singapore
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeployTrigger: off
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: COOKIE_SECURE
+        value: "1"
+      - key: SERVE_FRONTEND
+        value: "1"
+      - key: VITE_KAKAO_APP_KEY
+        sync: false
+      - key: VWORLD_API_KEY
+        sync: false
+      - key: BUILDING_PERMIT_API_KEY
+        sync: false
+      - key: HOUSING_PERMIT_API_KEY
+        sync: false
+      - key: BUILDING_REGISTER_API_KEY
+        sync: false
+

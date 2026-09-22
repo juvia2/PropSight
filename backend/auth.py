@@ -15,7 +15,7 @@ from models import Team, User, LoginSession
 
 router = APIRouter(prefix='/api')
 COOKIE = 'propsight_session'
-ORIGINS = {'http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:8000', 'http://127.0.0.1:8000'}
+from deployment import ALLOWED_ORIGINS as ORIGINS
 
 def digest(value):
     return hashlib.sha256(value.encode()).hexdigest()

@@ -1,5 +1,6 @@
 from datetime import datetime
-from sqlalchemy import String, Text, CheckConstraint, ForeignKey, DateTime, Index, func
+from sqlalchemy import String, Text, CheckConstraint, ForeignKey, DateTime, Index, LargeBinary, UniqueConstraint, func
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from geoalchemy2 import Geometry
 
@@ -63,3 +64,38 @@ class MemoRevision(Base):
     memo: Mapped[str] = mapped_column(Text)
     author_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
     saved_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class Attachment(Base):
+    __tablename__ = 'attachments'
+    __table_args__ = (
+        CheckConstraint("resource IN ('properties', 'commercial_blocks')"),
+        Index('ix_attachments_record', 'resource', 'record_id'),
+    )
+    id: Mapped[int] = mapped_column(primary_key=True)
+    resource: Mapped[str] = mapped_column(String(32))
+    record_id: Mapped[int] = mapped_column()
+    filename: Mapped[str] = mapped_column(String(255))
+    media_type: Mapped[str] = mapped_column(String(100))
+    size: Mapped[int] = mapped_column()
+    content: Mapped[bytes] = mapped_column(LargeBinary, deferred=True)
+    author_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class PublicDataSnapshot(Base):
+    __tablename__ = 'public_data_snapshots'
+    __table_args__ = (
+        CheckConstraint("resource IN ('properties', 'commercial_blocks')"),
+        CheckConstraint("kind IN ('land_use', 'building_permit', 'housing_permit', 'building_register')"),
+        UniqueConstraint('resource', 'record_id', 'kind', 'pnu', name='uq_public_data_parcel'),
+    )
+    id: Mapped[int] = mapped_column(primary_key=True)
+    resource: Mapped[str] = mapped_column(String(32))
+    record_id: Mapped[int] = mapped_column()
+    kind: Mapped[str] = mapped_column(String(32))
+    pnu: Mapped[str] = mapped_column(String(19))
+    address: Mapped[str] = mapped_column(String(300), default='')
+    payload: Mapped[dict] = mapped_column(JSONB)
+    fetched_by: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    fetched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))

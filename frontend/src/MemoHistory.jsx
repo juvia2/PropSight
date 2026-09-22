@@ -13,7 +13,7 @@ function SavedMemo({ revision, previous }) {
     <p className="revision-caption">{!previous ? '비교할 이전 저장 이력 없음' : changed ? '이전 저장 대비 추가·수정된 글을 초록색으로 표시합니다.' : '이전 저장과 메모 내용이 같습니다.'}</p>
     {changed && !parts && <p className="revision-caption">변경량이 많아 강조 표시 대신 저장된 전체 내용을 표시합니다.</p>}
     <p className="revision-memo">{!revision.memo ? '메모 없음' : parts ? parts.filter(part => !part.removed).map((part, index) => part.added ? <mark className="memo-added" key={index}>{part.value}</mark> : <span key={index}>{part.value}</span>) : revision.memo}</p>
-    {removed.length > 0 && <div className="memo-removed"><strong>이전 메모에서 삭제·교체된 글</strong><ul>{removed.map((part, index) => <li key={index}><del>{part.value}</del></li>)}</ul></div>}
+    {removed.length > 0 && <div className="memo-removed"><strong>이전 메모 원문 · 삭제·교체된 부분은 취소선</strong><p className="memo-original">{parts.filter(part => !part.added).map((part, index) => part.removed ? <del key={index}>{part.value}</del> : <span key={index}>{part.value}</span>)}</p></div>}
   </article>
 }
 

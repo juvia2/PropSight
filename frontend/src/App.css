@@ -76,3 +76,64 @@ aside textarea { min-height: 140px; font-size: 14px; line-height: 1.7; }
 .memo-removed strong { font-size: 11px; }
 .memo-removed ul { padding-left: 18px; margin: 8px 0 0; }
 .memo-removed li { white-space: pre-wrap; overflow-wrap: anywhere; }
+
+.memo-removed .memo-original { white-space: pre-wrap; overflow-wrap: anywhere; color: #405547; font-size: 13px; line-height: 1.8; }
+.memo-original del { color: #a43b3b; background: #ffdfdc; }
+.attachments { border-top: 1px solid #e5eae3; padding-top: 20px; margin-top: 22px; }
+.attachments h3 { font-size: 14px; margin: 0; }
+.attachment-picker { border: 1px dashed #a8bfae; background: #f6f9f4; padding: 14px; border-radius: 8px; font-size: 12px; }
+.attachment-picker small { display: block; margin-top: 8px; color: #758b78; font-weight: 400; }
+.attachment-picker input { max-width: 100%; background: white; }
+.attachment-list { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 10px; }
+.attachment-list li { display: flex; gap: 14px; padding: 12px; border: 1px solid #e5eae3; border-radius: 8px; align-items: center; }
+.attachment-list img { width: 88px; height: 76px; object-fit: cover; border-radius: 5px; display: block; }
+.attachment-info { min-width: 0; flex: 1; }
+.attachment-info>a { font-size: 13px; font-weight: 600; overflow-wrap: anywhere; }
+.attachment-info small { display: block; color: #758b78; font-size: 11px; margin: 5px 0; overflow-wrap: anywhere; }
+.attachment-actions { display: flex; gap: 16px; align-items: center; font-size: 12px; }
+.attachment-actions a { color: #255c4b; text-decoration: underline; }
+.attachment-actions button { color: #a43b3b; border: 0; background: none; padding: 4px 0; }
+.attachment-error { color: #a43b3b; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; }
+
+.cadastral-toggle { padding: 8px 11px; border: 1px solid #ccd8cd; border-radius: 6px; background: white; color: #53705e; font-size: 12px; white-space: nowrap; }
+.cadastral-toggle[aria-pressed=true] { background: #255c4b; color: white; border-color: #255c4b; }
+.cadastral-note { font-size: 11px; color: #758b78; margin: -8px 0 14px; }
+.filterbar { flex-wrap: wrap; }
+
+.public-data { border: 1px solid #dae4d7; border-radius: 9px; margin-top: 22px; }
+.public-data>summary { padding: 15px; cursor: pointer; font-size: 14px; font-weight: 600; color: #315b45; background: #f4f8f1; border-radius: 9px; }
+.public-data-body { padding: 0 16px 16px; }
+.public-address-search { display: flex; align-items: end; gap: 8px; margin-top: 16px; }
+.public-address-search label { flex: 1; margin: 0; min-width: 0; }
+.public-address-search button { flex-shrink: 0; }
+.public-data-body>.refresh { margin-top: 8px; }
+.public-address-results { list-style: none; padding: 0; max-height: 180px; overflow-y: auto; }
+.public-address-results button { width: 100%; text-align: left; padding: 10px; background: #f8faf6; color: #315b45; border: 1px solid #e0e7dc; font-size: 12px; }
+.public-parcel { margin-top: 14px; color: #315b45; font-size: 13px; font-weight: 600; }
+.public-pnu { margin-top: 8px; font-size: 11px; color: #758b78; }
+.public-pnu summary { cursor: pointer; }
+.public-service-buttons { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; margin: 14px 0; }
+.public-service-buttons button { padding: 12px 8px; border: 1px solid #d4dfd0; border-radius: 7px; background: white; color: #315b45; }
+.public-service-buttons strong { display: block; font-size: 12px; }
+.public-service-buttons small { display: block; font-size: 10px; margin-top: 4px; font-weight: 400; }
+.public-error { color: #a43b3b; font-size: 12px; margin-top: 8px; }
+.public-snapshot { margin-top: 14px; border-top: 1px solid #e0e7dc; padding-top: 12px; }
+.public-snapshot>summary { cursor: pointer; color: #315b45; font-size: 13px; }
+.public-snapshot>summary span { display: block; color: #758b78; font-size: 11px; margin: 5px 0 0 15px; overflow-wrap: anywhere; }
+.public-snapshot a { text-decoration: underline; }
+.public-row { border: 1px solid #e5eae3; border-radius: 5px; margin: 10px 0; padding: 10px; font-size: 12px; }
+.public-row summary { cursor: pointer; overflow-wrap: anywhere; }
+.public-row dl { margin-bottom: 0; }
+.public-row dl>div { display: grid; grid-template-columns: minmax(100px,40%) minmax(0,1fr); padding: 7px 0; border-top: 1px solid #edf0e9; gap: 8px; }
+.public-row dt { color: #758b78; overflow-wrap: anywhere; }
+.public-row dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+.public-address-note { font-size: 11px; line-height: 1.6; margin-top: 8px; }
+
+.map-tools { margin-bottom: 14px; padding: 12px 18px; border: 1px solid #dae2e8; border-radius: 10px; background: #f3f6f8; }
+.map-tools-row { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+.map-tools-title { font-size: 12px; font-weight: 700; color: #506775; }
+.map-tools-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.map-tools-actions button { padding: 8px 12px; font-size: 12px; }
+.map-tools .cadastral-note { margin: 9px 0 0; }
+@media (max-width: 650px) { .map-tools { padding: 12px; } .map-tools-row { gap: 10px; } .map-tools-title { width: 100%; } }
