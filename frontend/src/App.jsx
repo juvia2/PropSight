@@ -184,7 +184,7 @@ function Dashboard({ user }) {
   }
 
   return <div className="app">
-    <header><a className="brand" href="/">▦ <span>PropSight<small>COMMERCIAL REAL ESTATE</small></span></a><div className="workspace">서울 · 성수 <span>임장 워크스페이스</span></div><span className={`connection ${status.includes('실패') ? 'offline' : ''}`}>● {status}</span></header>
+    <header><a className="brand" href="/">▦ <span>PropSight<small>COMMERCIAL REAL ESTATE</small></span></a><div className="workspace">임장 워크스페이스</div><span className={`connection ${status.includes('실패') ? 'offline' : ''}`}>● {status}</span></header>
     <main>
       <section className="heading"><div><div className="eyebrow">YOUR NEXT OPPORTUNITY, MAPPED.</div><h1>도시의 변화를 읽는 지도</h1><p>개발 동향부터 현장 매물까지, 한곳에서 기록하고 살펴보세요.</p></div><button className="refresh" onClick={() => { setError(''); reload() }}>↻ 데이터 새로고침</button></section>
       <section className="filterbar"><span className="filter-label">지도 레이어</span><div className="toggles" role="group" aria-label="지도 카테고리 필터">{CATEGORIES.map(c => <button key={c} aria-pressed={active.includes(c)} className={active.includes(c) ? 'selected' : ''} style={{ '--category': COLORS[c] }} onClick={() => setActive(previous => previous.includes(c) ? previous.filter(x => x !== c) : [...previous, c])}><i />{c}<b>{items.filter(x => x.properties.category === c).length}</b></button>)}</div><span className="filter-count">현재 표시 <strong>{visible.length}</strong>건</span></section>

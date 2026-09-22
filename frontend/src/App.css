@@ -55,6 +55,6 @@ aside textarea { min-height: 140px; font-size: 14px; line-height: 1.7; }
 /* Collapsed search leaves the map free for dragging and clicking. */
 .location-search { pointer-events: none; }
 .location-toggle,.location-search-panel { pointer-events: auto; }
-.location-toggle { display: inline-flex; align-items: center; padding: 10px 14px; border: 1px solid #dce3d8; border-radius: 8px; background: white; color: #255c4b; font-size: 13px; font-weight: 600; box-shadow: 0 3px 12px #173f3515; }
+.location-toggle { display: inline-flex; align-items: center; padding: 6px 9px; border: 1px solid #dce3d8; border-radius: 6px; background: white; color: #255c4b; font-size: 11px; font-weight: 600; box-shadow: 0 3px 12px #173f3515; }
 .location-toggle[aria-expanded=true] { background: #255c4b; color: white; border-color: #255c4b; }
 .location-search-panel { margin-top: 8px; }
