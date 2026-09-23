@@ -4,6 +4,38 @@ import { request, jsonOptions } from './api'
 const timestamp = value => new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value))
 const hasPnu = value => /^[0-9]{10}[12][0-9]{8}$/.test(value)
 
+const readableValue = value => {
+  if (value === null || value === undefined || typeof value === 'object') return ''
+  const text = String(value).replace(/\s+/g, ' ').trim()
+  return text && /[\p{L}\p{N}]/u.test(text) ? text : ''
+}
+
+function rowTitle(row, index) {
+  const preferred = ['bldNm', 'platPlc', 'newPlatPlc', 'mainPurpsCdNm', 'prposAreaDstrcCodeNm', 'archGbCdNm', 'pmsDay', 'useAprDay']
+  const detail = preferred.map(key => readableValue(row[key])).find(Boolean)
+  return `상세 정보 ${index + 1}${detail ? ` · ${detail}` : ''}`
+}
+
+function geometryAnchor(geometry) {
+  if (geometry?.type === 'Point') return geometry.coordinates
+  const ring = geometry?.type === 'Polygon' ? geometry.coordinates?.[0] : null
+  if (!Array.isArray(ring) || ring.length < 3) return null
+  const points = ring.length > 3 && ring[0][0] === ring.at(-1)[0] && ring[0][1] === ring.at(-1)[1] ? ring.slice(0, -1) : ring
+  const [originX, originY] = points[0]
+  let twiceArea = 0, longitude = 0, latitude = 0
+  points.forEach((point, index) => {
+    const next = points[(index + 1) % points.length]
+    const x = point[0] - originX, y = point[1] - originY
+    const nextX = next[0] - originX, nextY = next[1] - originY
+    const cross = x * nextY - nextX * y
+    twiceArea += cross
+    longitude += (x + nextX) * cross
+    latitude += (y + nextY) * cross
+  })
+  if (Math.abs(twiceArea) > 1e-12) return [originX + longitude / (3 * twiceArea), originY + latitude / (3 * twiceArea)]
+  return [points.reduce((sum, point) => sum + point[0], 0) / points.length, points.reduce((sum, point) => sum + point[1], 0) / points.length]
+}
+
 function parcelFromAddress(address) {
   const main = String(address.main_address_no || '')
   const sub = String(address.sub_address_no || '0')
@@ -30,10 +62,13 @@ function Snapshot({ snapshot }) {
       <p className="hint">조회 {timestamp(snapshot.fetched_at)} · @{snapshot.author_username}<br />필지번호 {snapshot.pnu} · <a href={snapshot.source} target="_blank" rel="noreferrer">자료 출처</a></p>
       {snapshot.truncated && <p className="public-error">전체 {snapshot.total_count}건 중 {snapshot.rows.length}건만 표시됩니다. 전체 자료는 출처에서 확인하세요.</p>}
       {!snapshot.rows.length && <p className="hint">이 지번에서 조회된 자료가 없습니다. 다른 지번 또는 부속지번으로 등록된 자료는 포함되지 않을 수 있습니다.</p>}
-      {snapshot.rows.slice(0, limit).map((row, index) => <details className="public-row" key={index}>
-        <summary>{row.bldNm || row.prposAreaDstrcCodeNm || row.platPlc || '자료 ' + (index + 1)}</summary>
-        <dl>{Object.entries(row).filter(([, value]) => value !== '' && value !== null).map(([key, value]) => <div key={key}><dt>{snapshot.field_labels[key] || key}</dt><dd>{typeof value === 'object' ? JSON.stringify(value) : String(value)}</dd></div>)}</dl>
-      </details>)}
+      {snapshot.rows.slice(0, limit).map((row, index) => {
+        const fields = Object.entries(row).filter(([, value]) => typeof value === 'object' ? value !== null : Boolean(readableValue(value)))
+        return <details className="public-row" key={index}>
+          <summary>{rowTitle(row, index)}</summary>
+          {fields.length ? <dl>{fields.map(([key, value]) => <div key={key}><dt>{snapshot.field_labels[key] || key}</dt><dd>{typeof value === 'object' ? JSON.stringify(value) : String(value).trim()}</dd></div>)}</dl> : <p className="hint">표시할 상세 항목이 없습니다.</p>}
+        </details>
+      })}
       {snapshot.rows.length > limit && <button type="button" className="refresh" onClick={() => setLimit(value => value + 20)}>20건 더 보기</button>}
     </div>
   </details>
@@ -78,10 +113,12 @@ export default function PublicData({ resource, recordId, geometry, canEdit, busy
 
   async function locateParcel() {
     const sdk = window.kakao?.maps?.services
-    if (!sdk || geometry?.type !== 'Point') return
-    onBusyChange(true); setWorking('핀 위치의 지번 확인 중…'); setError(''); setMatches([])
+    const anchor = geometryAnchor(geometry)
+    if (!sdk || !anchor) return
+    const locationLabel = geometry.type === 'Point' ? '핀 위치' : '구역 중심'
+    onBusyChange(true); setWorking(locationLabel + '의 지번 확인 중…'); setError(''); setMatches([])
     try {
-      const [x, y] = geometry.coordinates
+      const [x, y] = anchor
       const geocoder = new sdk.Geocoder()
       const [addresses, regions] = await Promise.all([
         geocode(callback => geocoder.coord2Address(x, y, callback), sdk),
@@ -89,7 +126,7 @@ export default function PublicData({ resource, recordId, geometry, canEdit, busy
       ])
       const address = addresses[0]?.address
       const region = regions.find(item => item.region_type === 'B')
-      if (!address || !region) throw new Error('핀 위치의 지번을 확인하지 못했습니다. 지번 주소로 검색해 주세요.')
+      if (!address || !region) throw new Error(locationLabel + '의 지번을 확인하지 못했습니다. 지번 주소로 검색해 주세요.')
       const found = parcelFromAddress({ ...address, b_code: region.code })
       setParcel(found); setQuery(found.address)
     } catch (e) { setError(e.message) }
@@ -116,7 +153,8 @@ export default function PublicData({ resource, recordId, geometry, canEdit, busy
           <label>조회할 지번 주소<input value={query} onChange={event => { setQuery(event.target.value); setParcel({ pnu: '', address: '' }); setMatches([]) }} placeholder="예: 서울 성동구 성수동2가 300-1" disabled={busy} maxLength={200} /></label>
           <button type="submit" className="refresh" disabled={busy || !query.trim() || !mapReady}>주소 검색</button>
         </form>
-        {geometry?.type === 'Point' ? <button type="button" className="refresh" disabled={busy || !mapReady} onClick={locateParcel}>핀 위치의 지번 찾기</button> : !standalone && <p className="hint">구역은 여러 필지를 포함할 수 있습니다. 조회할 지번을 검색해 선택하세요.</p>}
+        {geometry?.type === 'Point' && <button type="button" className="refresh" disabled={busy || !mapReady} onClick={locateParcel}>핀 위치의 지번 찾기</button>}
+        {geometry?.type === 'Polygon' && <><button type="button" className="refresh" disabled={busy || !mapReady} onClick={locateParcel}>구역 중심의 지번 추천</button><p className="hint">구역은 여러 필지를 포함할 수 있습니다. 중심 지번을 추천하므로 실제 조회할 필지가 맞는지 확인해 주세요.</p></>}
         <p className="hint public-address-note">자동으로 찾은 주소는 실제 위치와 다를 수 있으므로, 조회 전 정확한 지번 주소를 확인하는 것을 권장합니다.</p>
         {matches.length > 0 && <ul className="public-address-results">{matches.map(item => <li key={item.pnu}><button type="button" disabled={busy} onClick={() => { setParcel(item); setQuery(item.address); setMatches([]); setError('') }}>{item.address}</button></li>)}</ul>}
         <p className="public-parcel">{parcel.address || '조회할 지번을 선택해 주세요.'}</p>
