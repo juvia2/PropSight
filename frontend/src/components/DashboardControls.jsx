@@ -1,4 +1,4 @@
-import { CATEGORIES, COLORS, SANDBOX_TEAM_NAME } from '../config'
+import { CATEGORIES, COLORS, isSandboxTeamName } from '../config'
 
 export function MapTools({ cadastral, mapReady, onCadastralChange, onOpenLookup }) {
   return <section className="map-tools" aria-label="지도 및 공공자료 도구">
@@ -29,8 +29,8 @@ export function RecordFilters({ items, visibleCount, active, onActiveChange, dir
     </section>
     <section className="people-filters" aria-label="팀과 작성자 필터">
       <label>팀별 조회<select value={teamFilter} onChange={event => { onTeamChange(event.target.value); onAuthorChange('') }}>
-        <option value="">전체 팀 (시현 전용 제외)</option>
-        {directory.teams.map(team => <option key={team.id} value={team.id}>{team.name}{team.name.toLowerCase() === SANDBOX_TEAM_NAME ? ' (시현 전용)' : ''}</option>)}
+        <option value="">전체 팀</option>
+        {directory.teams.map(team => <option key={team.id} value={team.id}>{team.name}{isSandboxTeamName(team.name) ? ' (시현 전용)' : ''}</option>)}
       </select></label>
       <label>작성자별 조회<select value={authorFilter} onChange={event => onAuthorChange(event.target.value)}>
         <option value="">전체 직원</option>

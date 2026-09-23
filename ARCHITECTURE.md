@@ -41,7 +41,7 @@ backend/
 
 `main.py` only assembles the application. Route modules own HTTP behavior, schemas own input validation, models own persistence shape, and integrations stay behind their feature routes. Startup database work is isolated from request handling.
 
-`severcheckup` is a development/demo-only team. The default record collection
+`server`/`checkup` teams are development/demo-only teams (including the existing `서버 확인` name). The default record collection
 scope excludes that team’s properties and commercial blocks. A request that
 explicitly supplies its `team_id` opts into the sandbox, and the dashboard
 labels that option as `시현 전용` so it cannot be mistaken for shared data.

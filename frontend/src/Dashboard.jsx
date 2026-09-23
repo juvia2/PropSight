@@ -4,12 +4,12 @@ import MapPanel from './components/MapPanel'
 import PublicDataLookupModal from './components/PublicDataLookupModal'
 import RecordDetailModal from './components/RecordDetailModal'
 import RecordSidebar from './components/RecordSidebar'
-import { CATEGORIES, SANDBOX_TEAM_NAME } from './config'
+import { CATEGORIES, isSandboxTeamName } from './config'
 import useKakaoMap from './hooks/useKakaoMap'
 import useRecords from './hooks/useRecords'
 
 export default function Dashboard({ user }) {
-  const [teamFilter, setTeamFilter] = useState(() => user.team_name?.toLowerCase() === SANDBOX_TEAM_NAME ? String(user.team_id) : '')
+  const [teamFilter, setTeamFilter] = useState(() => isSandboxTeamName(user.team_name) ? String(user.team_id) : '')
   const records = useRecords(teamFilter)
   const { createRecord, setEditing, setError } = records
   const [authorFilter, setAuthorFilter] = useState('')
