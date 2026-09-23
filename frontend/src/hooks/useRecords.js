@@ -3,7 +3,7 @@ import { jsonOptions, request } from '../api'
 
 const RESOURCES = ['properties', 'commercial_blocks']
 
-export default function useRecords() {
+export default function useRecords(teamId = '') {
   const [items, setItems] = useState([])
   const [directory, setDirectory] = useState({ teams: [], users: [] })
   const [status, setStatus] = useState('API 연결 중')
@@ -17,7 +17,8 @@ export default function useRecords() {
   const reload = useCallback(async () => {
     try {
       const collections = await Promise.all(RESOURCES.map(async resource => {
-        const data = await request(`/api/${resource}`)
+        const query = teamId ? `?team_id=${encodeURIComponent(teamId)}` : ''
+        const data = await request(`/api/${resource}${query}`)
         return data.features.map(item => ({ ...item, resource }))
       }))
       const people = await request('/api/directory')
@@ -28,7 +29,7 @@ export default function useRecords() {
       setStatus('API 연결 실패')
       setError(requestError.message)
     }
-  }, [])
+  }, [teamId])
 
   useEffect(() => {
     reload()

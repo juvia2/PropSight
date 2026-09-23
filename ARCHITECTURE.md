@@ -33,12 +33,18 @@ backend/
 ├── auth.py             # login, sessions, users, teams
 ├── attachments.py      # attachment routes and storage rules
 ├── public_data.py      # VWorld and public-data integrations
+├── visibility.py       # development-only team visibility rules
 ├── models.py           # SQLAlchemy persistence models
 ├── database.py         # engine and session lifecycle
 └── deployment.py       # deployment configuration
 ```
 
 `main.py` only assembles the application. Route modules own HTTP behavior, schemas own input validation, models own persistence shape, and integrations stay behind their feature routes. Startup database work is isolated from request handling.
+
+`severcheckup` is a development/demo-only team. The default record collection
+scope excludes that team’s properties and commercial blocks. A request that
+explicitly supplies its `team_id` opts into the sandbox, and the dashboard
+labels that option as `시현 전용` so it cannot be mistaken for shared data.
 
 ## Dependency rules
 

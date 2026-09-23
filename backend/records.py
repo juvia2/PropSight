@@ -10,6 +10,7 @@ from database import get_db
 from models import Attachment, CommercialBlock, MemoRevision, Property, PublicDataSnapshot, Team, User
 from public_data import register_public_data
 from schemas import Category, FeatureInput
+from visibility import exclude_sandbox
 
 
 router = APIRouter()
@@ -70,6 +71,8 @@ def register_record_routes(resource, model, geometry_type):
             query = query.where(model.category == category)
         if team_id is not None:
             query = query.where(model.team_id == team_id)
+        else:
+            query = exclude_sandbox(query, model)
         if created_by is not None:
             query = query.where(model.created_by == created_by)
         return {'type': 'FeatureCollection', 'features': [serialize_feature(db, row) for row in db.scalars(query)]}
