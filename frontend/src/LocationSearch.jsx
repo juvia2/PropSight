@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-export default function LocationSearch({ map, enabled, drawing }) {
+export default function LocationSearch({ getMap, enabled, drawing }) {
   const [open, setOpen] = useState(false)
   const input = useRef(null)
   const toggle = useRef(null)
@@ -66,13 +66,14 @@ export default function LocationSearch({ map, enabled, drawing }) {
   }
 
   function choose(item) {
-    if (!map.current || drawing) return
+    const map = getMap()
+    if (!map || drawing) return
     const k = window.kakao.maps
     const position = new k.LatLng(Number(item.y), Number(item.x))
     marker.current?.setMap(null)
-    marker.current = new k.Marker({ map: map.current, position, title: item.name })
-    map.current.setLevel(3)
-    map.current.panTo(position)
+    marker.current = new k.Marker({ map, position, title: item.name })
+    map.setLevel(3)
+    map.panTo(position)
     setSelected(item)
     setResults([])
     setMessage('')

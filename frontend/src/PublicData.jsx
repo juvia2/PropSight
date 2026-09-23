@@ -1,78 +1,7 @@
 import { useEffect, useState } from 'react'
 import { request, jsonOptions } from './api'
-
-const timestamp = value => new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value))
-const hasPnu = value => /^[0-9]{10}[12][0-9]{8}$/.test(value)
-
-const readableValue = value => {
-  if (value === null || value === undefined || typeof value === 'object') return ''
-  const text = String(value).replace(/\s+/g, ' ').trim()
-  return text && /[\p{L}\p{N}]/u.test(text) ? text : ''
-}
-
-function rowTitle(row, index) {
-  const preferred = ['bldNm', 'platPlc', 'newPlatPlc', 'mainPurpsCdNm', 'prposAreaDstrcCodeNm', 'archGbCdNm', 'pmsDay', 'useAprDay']
-  const detail = preferred.map(key => readableValue(row[key])).find(Boolean)
-  return `상세 정보 ${index + 1}${detail ? ` · ${detail}` : ''}`
-}
-
-function geometryAnchor(geometry) {
-  if (geometry?.type === 'Point') return geometry.coordinates
-  const ring = geometry?.type === 'Polygon' ? geometry.coordinates?.[0] : null
-  if (!Array.isArray(ring) || ring.length < 3) return null
-  const points = ring.length > 3 && ring[0][0] === ring.at(-1)[0] && ring[0][1] === ring.at(-1)[1] ? ring.slice(0, -1) : ring
-  const [originX, originY] = points[0]
-  let twiceArea = 0, longitude = 0, latitude = 0
-  points.forEach((point, index) => {
-    const next = points[(index + 1) % points.length]
-    const x = point[0] - originX, y = point[1] - originY
-    const nextX = next[0] - originX, nextY = next[1] - originY
-    const cross = x * nextY - nextX * y
-    twiceArea += cross
-    longitude += (x + nextX) * cross
-    latitude += (y + nextY) * cross
-  })
-  if (Math.abs(twiceArea) > 1e-12) return [originX + longitude / (3 * twiceArea), originY + latitude / (3 * twiceArea)]
-  return [points.reduce((sum, point) => sum + point[0], 0) / points.length, points.reduce((sum, point) => sum + point[1], 0) / points.length]
-}
-
-function parcelFromAddress(address) {
-  const main = String(address.main_address_no || '')
-  const sub = String(address.sub_address_no || '0')
-  if (!/^[0-9]{10}$/.test(address.b_code || '') || !/^[0-9]{1,4}$/.test(main) || !/^[0-9]{1,4}$/.test(sub)) throw new Error('지번 정보를 확인할 수 없습니다. 다른 지번 주소를 선택하거나 필지번호를 입력해 주세요.')
-  return { pnu: address.b_code + (address.mountain_yn === 'Y' ? '2' : '1') + main.padStart(4, '0') + sub.padStart(4, '0'), address: address.address_name }
-}
-
-function geocode(run, services) {
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error('주소 확인 시간이 초과되었습니다. 다시 시도해 주세요.')), 10000)
-    run((data, status) => {
-      clearTimeout(timer)
-      if (status === services.Status.OK) resolve(data)
-      else reject(new Error('지번을 찾지 못했습니다. 주소를 다시 검색해 주세요.'))
-    })
-  })
-}
-
-function Snapshot({ snapshot }) {
-  const [limit, setLimit] = useState(20)
-  return <details className="public-snapshot">
-    <summary>{snapshot.label} · {snapshot.rows.length}건<span>{snapshot.address || snapshot.pnu}</span></summary>
-    <div className="public-snapshot-body">
-      <p className="hint">조회 {timestamp(snapshot.fetched_at)} · @{snapshot.author_username}<br />필지번호 {snapshot.pnu} · <a href={snapshot.source} target="_blank" rel="noreferrer">자료 출처</a></p>
-      {snapshot.truncated && <p className="public-error">전체 {snapshot.total_count}건 중 {snapshot.rows.length}건만 표시됩니다. 전체 자료는 출처에서 확인하세요.</p>}
-      {!snapshot.rows.length && <p className="hint">이 지번에서 조회된 자료가 없습니다. 다른 지번 또는 부속지번으로 등록된 자료는 포함되지 않을 수 있습니다.</p>}
-      {snapshot.rows.slice(0, limit).map((row, index) => {
-        const fields = Object.entries(row).filter(([, value]) => typeof value === 'object' ? value !== null : Boolean(readableValue(value)))
-        return <details className="public-row" key={index}>
-          <summary>{rowTitle(row, index)}</summary>
-          {fields.length ? <dl>{fields.map(([key, value]) => <div key={key}><dt>{snapshot.field_labels[key] || key}</dt><dd>{typeof value === 'object' ? JSON.stringify(value) : String(value).trim()}</dd></div>)}</dl> : <p className="hint">표시할 상세 항목이 없습니다.</p>}
-        </details>
-      })}
-      {snapshot.rows.length > limit && <button type="button" className="refresh" onClick={() => setLimit(value => value + 20)}>20건 더 보기</button>}
-    </div>
-  </details>
-}
+import PublicDataSnapshot from './features/public-data/PublicDataSnapshot'
+import { geocode, geometryAnchor, hasPnu, parcelFromAddress } from './features/public-data/publicDataUtils'
 
 export default function PublicData({ resource, recordId, geometry, canEdit, busy, onBusyChange, mapReady, standalone = false }) {
   const [services, setServices] = useState([])
@@ -165,7 +94,7 @@ export default function PublicData({ resource, recordId, geometry, canEdit, busy
       {working && <p className="hint" role="status">{working}</p>}
       {error && <p className="public-error" role="alert">{error}</p>}
       {status === 'ready' && !saved.length && <p className="hint">{standalone ? '주소를 선택한 뒤 원하는 자료를 조회해 주세요.' : '저장된 공공자료가 없습니다.'}</p>}
-      {saved.map(snapshot => <Snapshot key={snapshot.id + snapshot.fetched_at} snapshot={snapshot} />)}
+      {saved.map(snapshot => <PublicDataSnapshot key={snapshot.id + snapshot.fetched_at} snapshot={snapshot} />)}
     </div>
   </details>
 }
