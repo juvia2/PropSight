@@ -61,9 +61,8 @@ export default function Dashboard({ user }) {
   }
 
   return <div className="app">
-    <header><a className="brand" href="/">▦ <span>PropSight<small>COMMERCIAL REAL ESTATE</small></span></a><div className="workspace">임장 워크스페이스</div><span className={`connection ${records.status.includes('실패') ? 'offline' : ''}`}>● {records.status}</span></header>
+    <header><a className="brand" href="/">▦ <span>PropSight<small>COMMERCIAL REAL ESTATE</small></span></a><div className="workspace">임장 워크스페이스</div><div className="header-actions"><button className="header-refresh" onClick={refresh}>↻ 새로고침</button><span className={`connection ${records.status.includes('실패') ? 'offline' : ''}`}>● {records.status}</span></div></header>
     <main>
-      <section className="heading"><div><div className="eyebrow">YOUR NEXT OPPORTUNITY, MAPPED.</div><h1>도시의 변화를 읽는 지도</h1><p>개발 동향부터 현장 매물까지, 한곳에서 기록하고 살펴보세요.</p></div><button className="refresh" onClick={refresh}>↻ 데이터 새로고침</button></section>
       <MapTools cadastral={cadastral} mapReady={map.status === 'ready'} onCadastralChange={() => setCadastral(value => !value)} onOpenLookup={() => setLookupOpen(true)} />
       <RecordFilters items={records.items} visibleCount={visible.length} active={active} onActiveChange={setActive} directory={records.directory} teamFilter={teamFilter} authorFilter={authorFilter} onTeamChange={setTeamFilter} onAuthorChange={setAuthorFilter} user={user} />
       {records.error && <div role="alert" className="error">{records.error}<button onClick={() => records.setError('')}>닫기</button></div>}
@@ -71,7 +70,6 @@ export default function Dashboard({ user }) {
         <RecordSidebar user={user} draft={draft} onDraftChange={setDraft} drawing={map.drawing} busy={records.busy} pending={records.pending} mapReady={map.status === 'ready'} visible={visible} itemCount={records.items.length} search={search} onSearchChange={setSearch} onStartDrawing={startDrawing} onCancelDrawing={map.cancelDrawing} onRetry={() => records.createRecord(records.pending)} onDiscard={() => records.setPending(null)} onSelect={selectRecord} />
         <MapPanel controller={map} busy={records.busy} pending={records.pending} />
       </div>
-      <footer>PropSight <span>현장에서 발견하고, 지도에 기록하세요.</span><span>좌표계 WGS 84 · PostGIS</span></footer>
     </main>
     <PublicDataLookupModal open={lookupOpen} busy={lookupBusy} mapReady={map.status === 'ready'} onBusyChange={setLookupBusy} onClose={() => setLookupOpen(false)} />
     <RecordDetailModal record={records.editing} user={user} busy={records.busy} revisions={records.revisions} revisionStatus={records.revisionStatus} error={records.error} mapReady={map.status === 'ready'} onClose={() => records.setEditing(null)} onUpdate={records.updateRecord} onDelete={records.deleteRecord} onBusyChange={records.setBusy} />

@@ -137,3 +137,22 @@ aside textarea { min-height: 140px; font-size: 14px; line-height: 1.7; }
 .map-tools-actions button { padding: 8px 12px; font-size: 12px; }
 .map-tools .cadastral-note { margin: 9px 0 0; }
 @media (max-width: 650px) { .map-tools { padding: 12px; } .map-tools-row { gap: 10px; } .map-tools-title { width: 100%; } }
+
+/* Keep the work surface compact so the map and records start immediately. */
+header { height: 64px; padding: 0 28px; gap: 32px; }
+.brand { font-size: 28px; }
+.brand span { font-size: 23px; }
+.header-actions { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.header-actions .connection { margin-left: 0; }
+.header-refresh { border: 1px solid #dce2da; background: #fff; color: #527064; border-radius: 6px; padding: 7px 10px; font-size: 11px; }
+main { padding: 16px 28px 12px; }
+main > .map-tools { margin-top: 0; }
+@media (max-width: 650px) {
+  header { height: 58px; padding: 0 15px; gap: 12px; }
+  .brand { font-size: 24px; gap: 7px; }
+  .brand span { font-size: 20px; }
+  .brand small { display: none; }
+  .header-refresh { padding: 6px 8px; font-size: 10px; }
+  .header-actions { gap: 6px; }
+  main { padding: 12px 15px 10px; }
+}
