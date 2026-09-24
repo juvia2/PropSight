@@ -22,7 +22,7 @@ npm install
 npm run dev
 ```
 
-- 대시보드: http://localhost:5173
+- 대시보드: https://propsight-zmrz.onrender.com/
 - API 문서: http://localhost:8000/docs
 - DB: 127.0.0.1:5432 / propsight / postgres / root
 - 종료: 각 서버 터미널 Ctrl+C, `docker-compose -f docker-compose.yml down` (데이터 볼륨 유지)
