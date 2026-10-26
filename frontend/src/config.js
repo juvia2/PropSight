@@ -1,5 +1,5 @@
 export const CATEGORIES = ['개발계획', '상권분석', '진행매물']
-export const COLORS = { 개발계획: '#7970cb', 상권분석: '#168b80', 진행매물: '#d38b36' }
+export const COLORS = { 개발계획: '#211a43', 상권분석: '#e60032', 진행매물: '#737373' }
 export const HAS_MAP_KEY = Boolean(import.meta.env.VITE_KAKAO_APP_KEY && import.meta.env.VITE_KAKAO_APP_KEY !== 'YOUR_KAKAO_APP_KEY')
 export const SANDBOX_TEAM_NAMES = ['severcheckup', 'servercheckup', 'checkup', 'server', '서버확인']
 export const isSandboxTeamName = value => {

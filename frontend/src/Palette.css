@@ -1,0 +1,41 @@
+:root { --brand-ink: #211a43; --brand-red: #e60032; --brand-gray: #737373; --brand-line: #e2e2e6; --brand-surface: #f7f7f9; }
+body { background: var(--brand-surface); color: var(--brand-ink); }
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible { outline-color: var(--brand-red); }
+.app { background: #fff; }
+.app > header,.listing-detail,.app .saved-notes,.app .draft-panel { border-color: var(--brand-line); }
+.app .brand,.auth-card .brand { color: var(--brand-ink); }
+.app .header-refresh,.app .draft-panel .draw-buttons button,.app .auth-submit { background: var(--brand-red); border-color: var(--brand-red); color: #fff; }
+.app .header-refresh:hover,.app .draft-panel .draw-buttons button:hover { background: #c9002b; }
+.app .draft-panel .draw-buttons button + button { background: #fff; color: var(--brand-red); }
+.app .account-link,.app .toolbar-actions button[aria-expanded=true],.app .toolbar-actions button:hover { color: var(--brand-ink); }
+.app .canvas-toolbar-main,.app .saved-notes,.app .draft-panel,.listing-detail { box-shadow: 0 4px 18px #211a4318; }
+.app .toolbar-categories button.selected { border-color: #d8d5e3; background: #f1eff5; color: var(--brand-ink); }
+.app .canvas-filter-map-actions button[aria-pressed=true] { border-color: var(--brand-red); color: var(--brand-red); }
+.app .saved-notes-heading h2 span,.app .saved-notes .record-icon { background: #f1eff5; color: var(--brand-ink); }
+.app .saved-notes .record:hover,.app .saved-notes .record:focus-visible { background: #f7f5f9; }
+.app .notes-collapse:hover { border-color: var(--brand-red); color: var(--brand-red); }
+.app .location-toggle { color: var(--brand-ink); }
+.app .location-search form button,.app .refresh { border-color: var(--brand-red); }
+.saved-notes-stat,.app .draft-panel input,.app .draft-panel select,.app .draft-panel textarea,.app .saved-notes-body input { background: var(--brand-surface); }
+.stat-ring { background: conic-gradient(var(--brand-red) 0 78%,#e5e3e9 78% 100%); }
+.listing-detail-head { background: #f7f6f9; border-color: var(--brand-line); }
+.listing-detail-head h2,.listing-facts strong,.listing-data-table dd,.listing-detail .revision-section h3,.listing-detail .attachments h3 { color: var(--brand-ink); }
+.listing-facts span,.listing-data-table,.listing-data-table > div,.listing-tabs,.listing-detail-top,.listing-detail .revision-section .panel-title,.listing-detail .attachments .panel-title { border-color: var(--brand-line); }
+.listing-tabs button[aria-selected='true'] { border-bottom-color: var(--brand-red); color: var(--brand-red); }
+.listing-section-title button,.listing-detail .attachment-info > a,.listing-detail .attachment-actions a { color: var(--brand-red); }
+.listing-edit-form .modal-actions button { background: var(--brand-red); border-color: var(--brand-red); }
+.listing-edit-form .modal-actions .listing-cancel { background: #fff; border-color: var(--brand-line); color: var(--brand-ink); }
+.listing-memo,.listing-detail .revision,.listing-detail .attachment-list li,.listing-detail .public-row { background: #faf9fb; border-color: var(--brand-line); }
+.listing-detail .revision summary,.listing-detail .revision .revision-memo,.listing-detail .memo-removed .memo-original { color: var(--brand-ink); }
+.listing-detail .revision summary:hover,.listing-detail .public-service-buttons button:hover { background: #f1eff5; }
+.listing-detail .revision-changed,.listing-detail .memo-added { background: #ffe7ed; color: #b60029; }
+.listing-detail .memo-added { text-decoration-color: var(--brand-red); }
+.listing-detail .attachment-picker,.listing-detail .public-address-results button,.listing-detail .public-service-buttons button { background: #faf9fb; border-color: var(--brand-line); color: var(--brand-ink); }
+.listing-detail .public-parcel,.listing-detail .public-snapshot > summary { color: var(--brand-ink); }
+.auth-page::before { background: radial-gradient(circle at 69% 70%, #ffffff13 0 13%, transparent 13.2% 100%), var(--brand-ink); }
+.auth-card .brand small { color: var(--brand-gray); }
+.auth-tabs button[aria-pressed=true] { border-bottom-color: var(--brand-red); color: var(--brand-red); }
+.auth-card input,.auth-card select { background: #faf9fb; border-color: var(--brand-line); color: var(--brand-ink); }
+.auth-card input:focus,.auth-card select:focus { border-color: var(--brand-red); outline-color: #e6003226; }
+.auth-card .auth-submit { background: var(--brand-red); }
+.auth-card .auth-submit:hover { background: #c9002b; }

@@ -9,6 +9,7 @@ import './index.css'
 import './App.css'
 import './Workspace.css'
 import './ListingReference.css'
+import './Palette.css'
 import './DesignPreview.css'
 
 const user = { id: 1, team_id: 1, team_name: '리테일 1팀', display_name: '김지우', username: 'jiwoo' }

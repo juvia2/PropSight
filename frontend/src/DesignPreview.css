@@ -2,9 +2,10 @@
 .preview-banner strong { padding: 3px 8px; border-radius: 5px; background: #31576a; color: white; font-size: 10px; }
 .preview-map-image { position: absolute; inset: 0; background: url('/preview-map.svg') center/cover no-repeat; }
 .preview-location { position: absolute; z-index: 5; bottom: 22px; left: 31%; pointer-events: none; }
-.preview-pin { position: absolute; z-index: 2; display: grid; place-items: center; width: 38px; height: 38px; border: 3px solid #fff; border-radius: 50% 50% 50% 0; color: #fff; transform: rotate(-45deg); box-shadow: 0 6px 14px #18343b50; font-size: 20px; }
-.preview-pin-one { top: 45%; left: 38%; background: #168b80; }
-.preview-pin-two { top: 68%; left: 63%; background: #7970cb; }
+.preview-pin { position: absolute; z-index: 2; display: grid; place-items: center; width: 34px; height: 34px; border: 3px solid #fff; border-radius: 50%; color: transparent; box-shadow: 0 4px 12px #211a4350; font-size: 0; }
+.preview-pin::before { content: ''; width: 10px; height: 10px; border-radius: 50%; background: #fff; }
+.preview-pin-one { top: 45%; left: 38%; background: #e60032; }
+.preview-pin-two { top: 68%; left: 63%; background: #211a43; }
 .preview-toast { position: fixed; z-index: 30; left: 50%; bottom: 24px; transform: translateX(-50%); max-width: calc(100% - 24px); padding: 12px 18px; border-radius: 10px; background: #1f4249; color: #fff; box-shadow: 0 12px 30px #1f424944; font-size: 12px; text-align: center; }
 @media (max-width: 760px) {
   .preview-banner { padding: 9px 15px; }

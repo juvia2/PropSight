@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 840" role="img" aria-label="시안용 지도 이미지">
-  <rect width="1100" height="840" fill="#e8ece7"/>
-  <path d="M0 98 250 0h255L219 351 0 390Z" fill="#c6d9c9"/>
-  <path d="M812 0h288v410L948 516 731 310Z" fill="#d0e0cf"/>
-  <path d="M0 682c130-72 224-51 339 20 128 80 218 85 353 48 126-36 267-15 408 48v42H0Z" fill="#bcd9dc"/>
-  <g fill="#d9dcd5" stroke="#f7f8f2" stroke-width="9">
+  <rect width="1100" height="840" fill="#ececef"/>
+  <path d="M0 98 250 0h255L219 351 0 390Z" fill="#dddae5"/>
+  <path d="M812 0h288v410L948 516 731 310Z" fill="#e1dfe8"/>
+  <path d="M0 682c130-72 224-51 339 20 128 80 218 85 353 48 126-36 267-15 408 48v42H0Z" fill="#dad8e1"/>
+  <g fill="#dddddf" stroke="#f7f7f9" stroke-width="9">
     <path d="m188 131 138-94 146 55-104 141-105 15Z"/>
     <path d="m464 116 164-32 95 98-115 139-173-76Z"/>
     <path d="m113 391 194-109 105 55-49 159-210 49Z"/>
@@ -18,12 +18,12 @@
     <path d="M382-50C353 199 453 308 598 446S821 659 852 907" stroke-width="35"/>
     <path d="M786-22C746 172 782 331 939 470S1086 670 1147 704" stroke-width="28"/>
   </g>
-  <g fill="none" stroke="#d8dfd8" stroke-width="2" opacity=".8">
+  <g fill="none" stroke="#d9d9dd" stroke-width="2" opacity=".8">
     <path d="M-95 467C119 459 278 433 442 305S780 117 1196 104"/>
     <path d="M-43 256C244 312 474 367 595 524S839 782 1183 842"/>
   </g>
-  <g fill="#7f9187" font-family="sans-serif" font-size="24" font-weight="600" opacity=".9">
+  <g fill="#737373" font-family="sans-serif" font-size="24" font-weight="600" opacity=".9">
     <text x="81" y="160">서울숲</text><text x="526" y="180">성수동</text><text x="135" y="530">뚝섬역</text><text x="712" y="339">연무장길</text><text x="823" y="692">성수역</text>
   </g>
-  <g fill="#448eaa"><circle cx="836" cy="674" r="10"/><circle cx="139" cy="508" r="10"/></g>
+  <g fill="#737373"><circle cx="836" cy="674" r="10"/><circle cx="139" cy="508" r="10"/></g>
 </svg>
