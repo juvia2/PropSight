@@ -93,6 +93,35 @@ body { background: #f3f5f8; color: #20252e; }
 .listing-detail .attachments,.listing-detail .revision-section { margin-top: 18px; }
 .listing-detail .panel-title h3 { font-size: 13px; }
 .listing-detail .refresh { font-size: 11px; }
+/* Existing data tools inherit the new detail rail's palette and scale. */
+.listing-detail .revision-section,.listing-detail .attachments { border-top: 0; padding-top: 0; }
+.listing-detail .revision-section .panel-title,.listing-detail .attachments .panel-title { margin-bottom: 8px; padding: 0 0 10px; border-bottom: 1px solid #e8edf3; }
+.listing-detail .revision-section h3,.listing-detail .attachments h3 { color: #253449; font-size: 13px; }
+.listing-detail .revision-section .panel-title span,.listing-detail .revision-section .hint { color: #8490a0; font-size: 11px; }
+.listing-detail .revision-list { gap: 8px; margin-top: 14px; }
+.listing-detail .revision { border-color: #e3e9f1; border-radius: 7px; background: #f9fbfe; }
+.listing-detail .revision summary { padding: 12px 13px; color: #33435a; font-size: 12px; }
+.listing-detail .revision summary:hover { background: #edf3fd; }
+.listing-detail .revision-changed { margin-left: 8px; background: #e7efff; color: #2867e8; }
+.listing-detail .revision-day-content { padding: 0 13px; }
+.listing-detail .revision-entry { border-top-color: #e3e9f1; }
+.listing-detail .revision-meta,.listing-detail .revision .revision-caption { color: #788698; font-size: 10px; }
+.listing-detail .revision .revision-memo { color: #33435a; font-size: 12px; line-height: 1.7; }
+.listing-detail .memo-added { background: #dce9ff; color: #2159c4; text-decoration-color: #8db4ff; }
+.listing-detail .memo-removed { background: #fff1ef; }
+.listing-detail .memo-removed .memo-original { color: #3d4a5c; font-size: 11px; }
+.listing-detail .attachment-picker { border-color: #b9cdf0; background: #f5f8fe; color: #44546a; font-size: 11px; }
+.listing-detail .attachment-picker small,.listing-detail .attachment-info small { color: #8490a0; }
+.listing-detail .attachment-list li { gap: 9px; padding: 10px; border-color: #e3e9f1; background: #f9fbfe; }
+.listing-detail .attachment-list img { width: 60px; height: 54px; }
+.listing-detail .attachment-info > a,.listing-detail .attachment-actions a { color: #2867e8; font-size: 11px; }
+.listing-detail .public-data { border: 0; border-radius: 0; }
+.listing-detail .public-address-results button,.listing-detail .public-service-buttons button { border-color: #e0e8f3; background: #f8faff; color: #38516e; }
+.listing-detail .public-service-buttons button:hover { border-color: #b7cbec; background: #edf3ff; }
+.listing-detail .public-parcel,.listing-detail .public-snapshot > summary { color: #2c4970; }
+.listing-detail .public-pnu,.listing-detail .public-snapshot > summary span,.listing-detail .public-row dt { color: #8490a0; }
+.listing-detail .public-snapshot,.listing-detail .public-row dl > div { border-color: #e4eaf2; }
+.listing-detail .public-row { border-color: #e3e9f1; background: #f9fbfe; }
 
 @media (max-width: 850px) {
   .app .canvas-toolbar { left: 50%; max-width: calc(100vw - 260px); }
