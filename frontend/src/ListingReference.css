@@ -11,6 +11,9 @@ body { background: #f3f5f8; color: #20252e; }
 .app .map-panel { overflow: hidden; background: #e8eef3; }
 .app .map-surface { inset: 0; clip-path: none; border-radius: 0; animation: none; }
 .app .map-legend { display: none; }
+.app .map-pin { position: relative; display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 3px solid #fff; border-radius: 50%; color: transparent; box-shadow: 0 2px 8px #1d2d4759, 0 0 0 1px #22324a1c; transform: none; transition: transform .15s ease, box-shadow .15s ease; }
+.app .map-pin::before { content: ''; width: 10px; height: 10px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 2px #ffffff5c; }
+.app .map-pin:hover,.app .map-pin:focus-visible { transform: translateY(-3px) scale(1.08); box-shadow: 0 5px 14px #1d2d4770, 0 0 0 3px #fff; }
 .workspace-intro { display: none; }
 .workspace-summary { top: 18px; right: 22px; z-index: 4; padding: 7px 11px; border: 1px solid #e4e8ee; border-radius: 5px; background: #fff; color: #5a6574; font-size: 12px; box-shadow: 0 3px 12px #162c4515; }
 .workspace-summary strong { color: #2363d9; }

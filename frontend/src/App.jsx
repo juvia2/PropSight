@@ -1,6 +1,7 @@
 import './App.css'
 import './Workspace.css'
 import './ListingReference.css'
+import './AuthDesign.css'
 import AuthGate from './AuthGate'
 import Dashboard from './Dashboard'
 

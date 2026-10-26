@@ -110,14 +110,14 @@ export default function useKakaoMap({ visible, cadastral, onSelect, onDrawn }) {
         button.className = 'map-pin'
         button.style.background = color
         button.title = item.properties.name
-        button.textContent = '●'
+        button.setAttribute('aria-label', `${item.properties.category}: ${item.properties.name}`)
         button.onclick = () => onSelectRef.current(item)
         const [longitude, latitude] = item.geometry.coordinates
         return new kakaoMaps.CustomOverlay({
           map: map.current,
           position: new kakaoMaps.LatLng(latitude, longitude),
           content: button,
-          yAnchor: 1,
+          yAnchor: 0.5,
         })
       }
       const polygon = new kakaoMaps.Polygon({
