@@ -1,9 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { CATEGORIES, COLORS, HAS_MAP_KEY } from '../config'
 
-// Seoul Finance Center (136 Sejong-daero, Jung-gu, Seoul).
-const DEFAULT_MAP_CENTER = { latitude: 37.5651, longitude: 126.9770 }
-
 export default function useKakaoMap({ visible, cadastral, onSelect, onDrawn }) {
   const [status, setStatus] = useState(() => HAS_MAP_KEY ? 'loading' : 'key')
   const [error, setError] = useState('')
@@ -43,7 +40,7 @@ export default function useKakaoMap({ visible, cadastral, onSelect, onDrawn }) {
           return
         }
         map.current = new kakaoMaps.Map(mapNode.current, {
-          center: new kakaoMaps.LatLng(DEFAULT_MAP_CENTER.latitude, DEFAULT_MAP_CENTER.longitude),
+          center: new kakaoMaps.LatLng(37.5446, 127.0559),
           level: 4,
         })
         const drawingManager = new kakaoMaps.drawing.DrawingManager({
