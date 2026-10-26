@@ -3,7 +3,7 @@ import { request, jsonOptions } from './api'
 import PublicDataSnapshot from './features/public-data/PublicDataSnapshot'
 import { geocode, geometryAnchor, hasPnu, parcelFromAddress } from './features/public-data/publicDataUtils'
 
-export default function PublicData({ resource, recordId, geometry, canEdit, busy, onBusyChange, mapReady, standalone = false }) {
+export default function PublicData({ resource, recordId, geometry, canEdit, busy, onBusyChange, mapReady, standalone = false, expanded = false }) {
   const [services, setServices] = useState([])
   const [saved, setSaved] = useState([])
   const [status, setStatus] = useState('loading')
@@ -71,7 +71,7 @@ export default function PublicData({ resource, recordId, geometry, canEdit, busy
     finally { setWorking(''); onBusyChange(false) }
   }
 
-  return <details className="public-data" open={standalone || undefined}>
+  return <details className="public-data" open={standalone || expanded || undefined}>
     <summary>건물 · 토지 공공자료</summary>
     <div className="public-data-body">
       <p className="hint">토지이용계획 정보 조회는 관공서 발급 확인서 원본이 아닙니다. {standalone ? '핀 없이 주소로 조회할 수 있으며, 조회 결과는 창을 닫으면 사라집니다.' : '조회한 자료는 이 기록에 저장됩니다.'}</p>

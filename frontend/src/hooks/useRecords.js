@@ -56,7 +56,7 @@ export default function useRecords(teamId = '') {
   }, [])
 
   const updateRecord = useCallback(async values => {
-    if (!editing) return
+    if (!editing) return false
     setBusy(true)
     setError('')
     try {
@@ -73,8 +73,10 @@ export default function useRecords(teamId = '') {
       } catch {
         setRevisionStatus('error')
       }
+      return true
     } catch (requestError) {
       setError(requestError.message)
+      return false
     } finally {
       setBusy(false)
     }

@@ -1,0 +1,130 @@
+/* Digesto-inspired canvas adapted to the PropSight map and field notes. */
+body { background: #cdd2d8; color: #11141b; }
+.app { position: relative; width: min(1204px, calc(100% - 80px)); height: min(840px, calc(100vh - 110px)); min-height: 720px; margin: clamp(36px, 7vh, 86px) auto; overflow: hidden; border-radius: 22px; background: #f0f3f9; box-shadow: 0 28px 48px #7f89975e; }
+.app > header { position: relative; z-index: 12; height: 118px; padding: 0 28px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; border: 0; background: transparent; }
+.app .brand { height: 80px; gap: 9px; color: #11141b; font-size: 25px; }
+.app .brand span { font-size: 21px; font-weight: 700; letter-spacing: -1.2px; }
+.app .brand small { display: none; }
+.app .header-actions { z-index: 2; height: 54px; margin: 20px 0 0 auto; padding: 5px 6px 5px 15px; display: flex; align-items: center; gap: 10px; border-radius: 28px; background: #fff; box-shadow: 0 4px 10px #66758716; white-space: nowrap; }
+.app .account-name { font-size: 11px; color: #252831; }
+.app .account-link { border: 0; padding: 6px 2px; background: transparent; color: #3c414b; font-size: 11px; }
+.app .header-refresh { height: 38px; padding: 0 16px; border: 0; border-radius: 22px; background: #1765ea; color: white; font-size: 11px; font-weight: 600; }
+.app .header-refresh:hover { background: #1056d2; }
+.app main { height: calc(100% - 118px); max-width: none; margin: 0; padding: 0 28px 24px; }
+.app .dashboard { display: block; height: 100%; min-height: 0; }
+.app .map-panel { position: relative; height: 100%; min-height: 0; overflow: visible; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.app .map-legend { display: none; }
+
+/* A compact pill replaces the old stacked control bars. */
+.app .canvas-toolbar { position: absolute; z-index: 13; top: 20px; left: 50%; width: max-content; max-width: 43%; transform: translateX(-50%); }
+.app .canvas-toolbar-main { display: flex; align-items: center; gap: 5px; padding: 6px; border: 0; border-radius: 28px; background: #fff; box-shadow: 0 4px 10px #66758716; }
+.app .toolbar-categories,.app .toolbar-actions { display: flex; align-items: center; gap: 2px; }
+.app .toolbar-categories button,.app .toolbar-actions button { height: 38px; display: flex; align-items: center; gap: 5px; padding: 0 9px; border: 1px solid transparent; border-radius: 22px; background: transparent; color: #3d414a; font-size: 11px; white-space: nowrap; }
+.app .toolbar-categories button.selected { border-color: #e9ebef; background: #f6f7fa; color: #181b22; }
+.app .toolbar-categories button i { width: 6px; height: 6px; background: var(--category); }
+.app .toolbar-categories button b { color: #7d8490; font-size: 10px; }
+.app .toolbar-actions { padding-left: 3px; border-left: 1px solid #e7e9ee; }
+.app .toolbar-actions button[aria-expanded=true],.app .toolbar-actions button:hover { background: #eaf0fb; color: #155ddc; }
+.app .canvas-filter-panel { position: absolute; top: calc(100% + 10px); right: 0; width: min(320px, calc(100vw - 48px)); padding: 16px; border: 1px solid #e6eaf0; border-radius: 17px; background: #fff; box-shadow: 0 18px 32px #69768a30; }
+.app .canvas-filter-panel label { margin: 0 0 10px; color: #555e6c; font-size: 11px; }
+.app .canvas-filter-panel select { margin-top: 5px; background: #f6f8fb; color: #242a33; }
+.app .canvas-filter-map-actions,.app .canvas-filter-shortcuts { display: flex; gap: 7px; margin-bottom: 10px; }
+.app .canvas-filter-map-actions button,.app .canvas-filter-shortcuts button { flex: 1; padding: 8px 6px; border: 1px solid #dce2ea; border-radius: 9px; background: #f7f9fc; color: #364658; font-size: 11px; }
+.app .canvas-filter-map-actions button[aria-pressed=true] { border-color: #1765ea; color: #1765ea; }
+.app .canvas-filter-shortcuts { margin-bottom: 0; }
+
+/* Headline and map image follow the reference's stepped composition. */
+.workspace-intro { position: absolute; z-index: 3; top: 22px; left: 34px; max-width: 560px; }
+.workspace-kicker { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; color: #171a21; font-size: 14px; font-weight: 600; }
+.workspace-kicker i { width: 100px; height: 1px; border-radius: 0; background: #7f8995; }
+.workspace-intro h1 { margin: 0; color: #090b10; font-size: clamp(43px, 4.3vw, 58px); line-height: 1.08; letter-spacing: -3.2px; font-weight: 700; }
+.workspace-summary { position: absolute; z-index: 3; top: 28px; right: 30px; margin: 0; color: #89909c; font-size: 15px; }
+.workspace-summary strong { color: #1c2432; font-weight: 600; }
+.map-shape-def { position: absolute; width: 0; height: 0; overflow: hidden; }
+.map-surface { position: absolute; z-index: 1; top: 22%; right: 0; bottom: 0; left: 20%; overflow: hidden; clip-path: url(#propsight-map-shape); background: #d6e0e9; animation: map-reveal .55s ease-out both; }
+.map-surface .map,.map-surface .map-placeholder { position: absolute; inset: 0; }
+.map-surface .map-placeholder { display: grid; place-items: center; }
+.map-surface .setup { max-width: 370px; }
+.app .location-search { position: absolute; z-index: 5; top: auto; bottom: 22px; left: 31%; right: auto; width: min(360px, calc(100% - 40px)); max-width: none; transform: none; }
+.app .location-toggle { padding: 9px 12px; border: 0; border-radius: 20px; box-shadow: 0 5px 16px #343d4d2c; color: #25517f; }
+
+/* The memo is the left card; saved notes sit above the right side of the map. */
+.app .draft-panel,.app .saved-notes { position: absolute; z-index: 6; border: 0; box-shadow: 0 8px 22px #6b758723; transition: width .28s ease, box-shadow .28s ease; animation: card-rise .45s ease-out both; }
+.app .draft-panel { top: 43%; left: 0; width: 240px; max-height: 55%; padding: 0; overflow-y: auto; border-radius: 20px; background: #e4e6eb; }
+.app .draft-panel-heading,.app .saved-notes-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 18px 18px 14px; }
+.app .draft-panel-heading h2,.app .saved-notes-heading h2 { margin: 0; color: #12151b; font-size: 16px; letter-spacing: -.4px; }
+.app .notes-collapse { display: grid; place-items: center; flex-shrink: 0; width: 30px; height: 30px; padding: 0; border: 1px solid #d7dce5; border-radius: 50%; background: #fff; color: #3f4857; font-size: 18px; }
+.app .notes-collapse:hover { border-color: #1765ea; color: #1765ea; }
+.app .draft-panel-body { padding: 0 18px 18px; }
+.app .draft-panel label { margin-bottom: 10px; color: #545c67; font-size: 11px; }
+.app .draft-panel input,.app .draft-panel select,.app .draft-panel textarea { margin-top: 5px; padding: 9px 10px; border: 1px solid #d2d8e0; border-radius: 9px; background: #f9fafc; color: #1c2430; font-size: 12px; }
+.app .draft-panel textarea { min-height: 125px; }
+.app .draft-panel .draw-buttons { gap: 6px; }
+.app .draft-panel .draw-buttons button { padding: 9px 6px; border: 1px solid #1765ea; border-radius: 22px; background: #1765ea; color: white; font-size: 10px; white-space: nowrap; }
+.app .draft-panel .draw-buttons button + button { background: transparent; color: #155acb; }
+.app .draft-panel.is-collapsed { width: 162px; }
+.app .draft-panel.is-collapsed .draft-panel-heading { padding-bottom: 18px; }
+
+.app .saved-notes { top: 26%; right: 14px; width: 274px; max-height: 47%; display: flex; flex-direction: column; overflow: hidden; border-radius: 19px; background: #fff; }
+.app .saved-notes-heading h2 span { display: inline-flex; align-items: center; justify-content: center; min-width: 23px; height: 23px; margin-left: 5px; padding: 0 6px; border-radius: 50%; background: #e9f0fc; color: #1765ea; font-size: 11px; vertical-align: 2px; }
+.app .saved-notes-body { min-height: 0; padding: 0 16px 15px; display: flex; flex-direction: column; }
+.app .saved-notes-body input { flex-shrink: 0; width: 100%; margin: 0 0 8px; padding: 8px 10px; border: 1px solid #e2e7ef; border-radius: 10px; background: #f7f9fc; font-size: 11px; }
+.app .saved-notes .record-list { min-height: 0; max-height: 250px; overflow-y: auto; padding: 0; }
+.app .saved-notes .record { gap: 8px; padding: 10px 3px; border-bottom: 1px solid #edf0f4; border-radius: 0; background: transparent; }
+.app .saved-notes .record:hover,.app .saved-notes .record:focus-visible { background: #f5f8fd; }
+.app .saved-notes .record-icon { display: grid; place-items: center; flex-shrink: 0; width: 29px; height: 29px; border-radius: 50%; background: #edf2fb; font-size: 18px; }
+.app .saved-notes .record strong { color: #1a202b; font-size: 12px; }
+.app .saved-notes .record p { color: #8b929e; font-size: 10px; -webkit-line-clamp: 1; }
+.app .saved-notes .record-author { display: none; }
+.app .saved-notes.is-collapsed { width: 168px; }
+.app .saved-notes .empty { padding: 18px 4px; }
+.saved-notes-stat { position: absolute; z-index: 5; right: 14px; bottom: 0; width: 274px; min-height: 142px; padding: 24px 22px; border-radius: 19px; background: #f1f4f9; box-shadow: 0 8px 22px #6b758719; animation: card-rise .55s ease-out both; }
+.saved-notes-stat strong { display: inline-block; margin-left: 12px; color: #11141b; font-size: 32px; line-height: 1; font-weight: 600; vertical-align: middle; }
+.saved-notes-stat small { display: block; margin: 15px 0 0 48px; color: #414956; font-size: 12px; }
+.stat-ring { position: relative; display: inline-block; width: 32px; height: 32px; border-radius: 50%; background: conic-gradient(#1765ea 0 78%,#dce7fb 78% 100%); vertical-align: middle; }
+.stat-ring::after { content: ''; position: absolute; inset: 7px; border-radius: 50%; background: #f1f4f9; }
+.draft-panel-body,.saved-notes-body { max-height: 620px; opacity: 1; transition: max-height .3s ease, opacity .2s ease, padding .3s ease; }
+.draft-panel.is-collapsed .draft-panel-body,.saved-notes.is-collapsed .saved-notes-body { max-height: 0; opacity: 0; padding-top: 0; padding-bottom: 0; overflow: hidden; }
+
+.app .invite-banner { position: absolute; z-index: 16; top: 86px; left: 28px; right: 28px; border-radius: 12px; box-shadow: 0 8px 18px #727f8c24; }
+.app main > .error { position: absolute; z-index: 16; top: 84px; left: 28px; right: 28px; }
+@keyframes map-reveal { from { opacity: .7; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes card-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 1050px) {
+  .app { width: calc(100% - 36px); margin: 18px auto; }
+  .app .canvas-toolbar { max-width: 48%; }
+  .app .toolbar-categories button { padding: 0 6px; }
+  .workspace-intro h1 { font-size: 48px; }
+  .app .draft-panel { width: 218px; }
+  .app .saved-notes,.saved-notes-stat { width: 250px; }
+}
+@media (max-width: 760px) {
+  .app { width: 100%; min-height: 100dvh; height: auto; margin: 0; border-radius: 0; }
+  .app > header { height: 138px; padding: 0 18px; }
+  .app .brand { height: 68px; }
+  .app .header-actions { height: 42px; margin-top: 14px; padding: 3px 4px 3px 10px; gap: 5px; }
+  .app .account-name { display: none; }
+  .app .account-link { font-size: 10px; }
+  .app .header-refresh { height: 34px; padding: 0 10px; font-size: 10px; }
+  .app .canvas-toolbar { top: 75px; left: 18px; width: calc(100% - 36px); max-width: none; transform: none; }
+  .app .canvas-toolbar-main { width: 100%; overflow-x: auto; justify-content: flex-start; }
+  .app .toolbar-categories,.app .toolbar-actions { flex-shrink: 0; }
+  .app .toolbar-categories button b { display: none; }
+  .app main { height: calc(100dvh - 138px); min-height: 650px; padding: 0 14px 14px; }
+  .workspace-intro { top: 10px; left: 8px; }
+  .workspace-kicker { margin-bottom: 9px; font-size: 11px; }
+  .workspace-kicker i { width: 44px; }
+  .workspace-intro h1 { font-size: 38px; letter-spacing: -2px; }
+  .workspace-summary { top: 132px; left: 8px; right: auto; font-size: 11px; }
+  .map-surface { top: 26%; left: 6%; }
+  .app .location-search { bottom: 14px; left: 18%; width: 200px; }
+  .app .draft-panel { top: 42%; left: 5px; width: min(260px, calc(100% - 20px)); max-height: 45%; }
+  .app .draft-panel.is-collapsed { width: 162px; }
+  .app .saved-notes { top: 43%; right: 5px; width: min(250px, calc(100% - 20px)); max-height: 42%; }
+  .app .saved-notes.is-collapsed { width: 168px; }
+  .saved-notes-stat { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .map-surface,.app .draft-panel,.app .saved-notes,.saved-notes-stat,.draft-panel-body,.saved-notes-body { animation: none; transition: none; }
+}

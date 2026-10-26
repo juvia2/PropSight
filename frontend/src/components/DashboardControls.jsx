@@ -1,4 +1,35 @@
+import { useState } from 'react'
 import { CATEGORIES, COLORS, isSandboxTeamName } from '../config'
+
+export function MapToolbar({ items, active, onActiveChange, directory, teamFilter, authorFilter, onTeamChange, onAuthorChange, user, cadastral, mapReady, onCadastralChange, onOpenLookup }) {
+  const [filtersOpen, setFiltersOpen] = useState(false)
+  const toggleCategory = category => onActiveChange(previous => previous.includes(category)
+    ? previous.filter(value => value !== category)
+    : [...previous, category])
+
+  return <div className="canvas-toolbar">
+    <div className="canvas-toolbar-main">
+      <div className="toolbar-categories" role="group" aria-label="지도 카테고리 필터">
+        {CATEGORIES.map(category => <button key={category} type="button" aria-pressed={active.includes(category)} className={active.includes(category) ? 'selected' : ''} style={{ '--category': COLORS[category] }} onClick={() => toggleCategory(category)}><i />{category}<b>{items.filter(item => item.properties.category === category).length}</b></button>)}
+      </div>
+      <div className="toolbar-actions">
+        <button type="button" aria-expanded={filtersOpen} aria-controls="canvas-filter-panel" onClick={() => setFiltersOpen(value => !value)}>필터</button>
+      </div>
+    </div>
+    {filtersOpen && <div id="canvas-filter-panel" className="canvas-filter-panel">
+      <div className="canvas-filter-map-actions"><button type="button" aria-pressed={cadastral} disabled={!mapReady} onClick={onCadastralChange}>지적도</button><button type="button" onClick={onOpenLookup}>자료 조회</button></div>
+      <label>팀<select value={teamFilter} onChange={event => { onTeamChange(event.target.value); onAuthorChange('') }}>
+        <option value="">전체 팀</option>
+        {directory.teams.map(team => <option key={team.id} value={team.id}>{team.name}{isSandboxTeamName(team.name) ? ' (시현 전용)' : ''}</option>)}
+      </select></label>
+      <label>작성자<select value={authorFilter} onChange={event => onAuthorChange(event.target.value)}>
+        <option value="">전체 직원</option>
+        {directory.users.filter(person => !teamFilter || String(person.team_id) === teamFilter).map(person => <option key={person.id} value={person.id}>{person.display_name} (@{person.username})</option>)}
+      </select></label>
+      <div className="canvas-filter-shortcuts"><button type="button" onClick={() => { onTeamChange(String(user.team_id)); onAuthorChange('') }}>내 팀</button><button type="button" onClick={() => { onTeamChange(String(user.team_id)); onAuthorChange(String(user.id)) }}>내 기록</button><button type="button" onClick={() => { onTeamChange(''); onAuthorChange('') }}>전체</button></div>
+    </div>}
+  </div>
+}
 
 export function MapTools({ cadastral, mapReady, onCadastralChange, onOpenLookup }) {
   return <section className="map-tools" aria-label="지도 및 공공자료 도구">
