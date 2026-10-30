@@ -9,7 +9,7 @@
   background: #fff;
 }
 .auth-page::before {
-  content: '현장의 정보를,\A한눈에.';
+  content: '';
   grid-column: 1;
   grid-row: 1;
   align-self: stretch;
@@ -53,12 +53,12 @@
   background: transparent;
   box-shadow: none;
 }
-.auth-card .brand { gap: 10px; margin-bottom: clamp(38px, 6vh, 78px); color: #2363d9; }
+.auth-card .brand { gap: 10px; margin-bottom: clamp(24px, 4vh, 48px); color: #2363d9; }
 .auth-card .brand span { font-size: 25px; letter-spacing: -.06em; }
 .auth-card .brand small { margin-top: 1px; color: #7e8a9b; font-size: 8px; letter-spacing: .2em; }
 .auth-card h1 { margin: 0 0 7px; color: #1d2735; font-size: 29px; letter-spacing: -.055em; }
 .auth-card > p { color: #788495; font-size: 12px; }
-.auth-tabs { gap: 0; margin: 32px 0 25px; border-bottom: 1px solid #e2e8f0; }
+.auth-tabs { gap: 0; margin: 0 0 25px; border-bottom: 1px solid #e2e8f0; }
 .auth-tabs button { flex: 1; padding: 12px 8px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; color: #8792a1; font-size: 13px; font-weight: 700; }
 .auth-tabs button[aria-pressed=true] { border-bottom-color: #2867e8; background: transparent; color: #2867e8; }
 .auth-card label { margin-bottom: 17px; color: #445166; font-size: 11px; }

@@ -4,9 +4,12 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .app { background: #fff; }
 .app > header,.listing-detail,.app .saved-notes,.app .draft-panel { border-color: var(--brand-line); }
 .app .brand,.auth-card .brand { color: var(--brand-ink); }
-.app .header-refresh,.app .draft-panel .draw-buttons button,.app .auth-submit { background: var(--brand-red); border-color: var(--brand-red); color: #fff; }
-.app .header-refresh:hover,.app .draft-panel .draw-buttons button:hover { background: #c9002b; }
-.app .draft-panel .draw-buttons button + button { background: #fff; color: var(--brand-red); }
+.app .header-refresh,.app .auth-submit { background: var(--brand-red); border-color: var(--brand-red); color: #fff; }
+.app .header-refresh:hover { background: #c9002b; }
+.app .draft-panel .draw-buttons button { background: var(--brand-ink); border-color: var(--brand-ink); color: #fff; }
+.app .draft-panel .draw-buttons button:hover { background: #39305f; }
+.app .draft-panel .draw-buttons button + button { background: #fff; color: var(--brand-ink); }
+.app .draft-panel .draw-buttons button + button:hover { background: #f1eff5; border-color: var(--brand-ink); }
 .app .account-link,.app .toolbar-actions button[aria-expanded=true],.app .toolbar-actions button:hover { color: var(--brand-ink); }
 .app .canvas-toolbar-main,.app .saved-notes,.app .draft-panel,.listing-detail { box-shadow: 0 4px 18px #211a4318; }
 .app .toolbar-categories button.selected { border-color: #d8d5e3; background: #f1eff5; color: var(--brand-ink); }
