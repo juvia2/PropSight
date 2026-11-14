@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react'
 import { request, jsonOptions } from './api'
-import LandUsePlan from './features/public-data/LandUsePlan'
+import LandUsePlan, { LandUseLinks } from './features/public-data/LandUsePlan'
 import PublicDataSnapshot from './features/public-data/PublicDataSnapshot'
 import { geocode, geometryAnchor, hasPnu, parcelFromAddress } from './features/public-data/publicDataUtils'
+
+// 토지이용계획은 LandUsePlan이 대신하고, 건축물대장 조회는 화면에서 뺐다.
+const HIDDEN_SERVICES = ['land_use', 'building_register']
 
 export default function PublicData({ resource, recordId, geometry, canEdit, busy, onBusyChange, mapReady, standalone = false, expanded = false, initialParcel = null, autoLookup = false }) {
   const [services, setServices] = useState([])
@@ -88,10 +91,12 @@ export default function PublicData({ resource, recordId, geometry, canEdit, busy
         <p className="hint public-address-note">자동으로 찾은 주소는 실제 위치와 다를 수 있으므로, 조회 전 정확한 지번 주소를 확인하는 것을 권장합니다.</p>
         {matches.length > 0 && <ul className="public-address-results">{matches.map(item => <li key={item.pnu}><button type="button" disabled={busy} onClick={() => { setParcel(item); setQuery(item.address); setMatches([]); setError('') }}>{item.address}</button></li>)}</ul>}
         <p className="public-parcel">{parcel.address || '조회할 지번을 선택해 주세요.'}</p>
+        <LandUseLinks parcel={parcel} />
         <details className="public-pnu"><summary>필지번호(PNU) 직접 입력</summary><label>19자리 필지번호<input value={parcel.pnu} onChange={event => { setParcel({ pnu: event.target.value, address: '' }); setQuery(''); setMatches([]) }} inputMode="numeric" maxLength={19} disabled={busy} /></label></details>
         {parcel.pnu && <p className="hint">필지번호 {parcel.pnu}{!hasPnu(parcel.pnu) && ' · 올바른 19자리 번호를 입력하세요.'}</p>}
-        <div className="public-service-buttons">{services.filter(service => service.kind !== 'land_use').map(service => <button type="button" key={service.kind} disabled={busy || !service.configured || !hasPnu(parcel.pnu)} onClick={() => fetchService(service)}><strong>{service.label}</strong><small>{service.configured ? service.scope + (standalone ? ' 조회' : ' 조회·저장') : '인증키 미설정'}</small></button>)}</div>
+        <div className="public-service-buttons">{services.filter(service => !HIDDEN_SERVICES.includes(service.kind)).map(service => <button type="button" key={service.kind} disabled={busy || !service.configured || !hasPnu(parcel.pnu)} onClick={() => fetchService(service)}><strong>{service.label}</strong><small>{service.configured ? service.scope + (standalone ? ' 조회' : ' 조회·저장') : '인증키 미설정'}</small></button>)}</div>
       </>}
+      {status === 'ready' && !canEdit && <LandUseLinks parcel={parcel} />}
       {status === 'ready' && <LandUsePlan parcel={parcel} autoRun={autoLookup} />}
       {working && <p className="hint" role="status">{working}</p>}
       {error && <p className="public-error" role="alert">{error}</p>}

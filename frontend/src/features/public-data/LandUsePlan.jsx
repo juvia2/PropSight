@@ -12,11 +12,22 @@ function Rows({ items, empty }) {
   </li>)}</ul>
 }
 
+export function LandUseLinks({ parcel }) {
+  if (!hasPnu(parcel.pnu)) return null
+  const seoul = parcel.pnu.startsWith('11')
+  return <div className="land-use-links-top">
+    <div className="land-use-links">
+      <a className="land-use-link" href={eumUrl(parcel.pnu)} target="_blank" rel="noreferrer"><strong>토지이음 토지이용계획 열람</strong><small>지목·면적·지역지구·확인도면</small></a>
+      {seoul && <a className="land-use-link" href={seoulPortalUrl(parcel.pnu)} target="_blank" rel="noreferrer"><strong>서울도시공간포털에서 열기</strong><small>{SEOUL_SECTIONS.join(' · ')}</small></a>}
+    </div>
+    {seoul && <p className="hint">서울도시공간포털은 해당 지번이 선택된 상태로 열립니다. 검색 결과의 지번을 누르면 위 항목을 볼 수 있습니다.</p>}
+  </div>
+}
+
 export default function LandUsePlan({ parcel, autoRun = false, preview = null }) {
   const [state, setState] = useState(() => preview ? { status: 'ready', result: preview, error: '' } : { status: 'idle', result: null, error: '' })
   const ran = useRef('')
   const valid = hasPnu(parcel.pnu)
-  const seoul = valid && parcel.pnu.startsWith('11')
 
   async function run() {
     if (!valid || state.status === 'loading' || preview) return
@@ -54,13 +65,8 @@ export default function LandUsePlan({ parcel, autoRun = false, preview = null })
       <Rows items={result.zoning} empty="조회된 용도지역·지구·구역이 없습니다." />
       <h4>도시계획시설</h4>
       <Rows items={result.facilities} empty="필지에 걸친 도시계획시설이 없습니다." />
-      {result.partial && <p className="public-error">일부 항목을 불러오지 못했습니다. 다시 조회하거나 아래 공식 사이트에서 확인해 주세요.</p>}
+      {result.partial && <p className="public-error">일부 항목을 불러오지 못했습니다. 다시 조회하거나 위 공식 사이트에서 확인해 주세요.</p>}
       <p className="hint">조회 {timestamp(result.fetchedAt)} · 브이월드 공간정보 기준이며 법적 효력이 있는 확인서가 아닙니다. 경계에 걸친 항목은 누락될 수 있습니다.</p>
     </div>}
-    <div className="land-use-links">
-      <a className="land-use-link" href={eumUrl(parcel.pnu)} target="_blank" rel="noreferrer"><strong>토지이음 토지이용계획 열람</strong><small>지목·면적·지역지구·확인도면</small></a>
-      {seoul && <a className="land-use-link" href={seoulPortalUrl(parcel.pnu)} target="_blank" rel="noreferrer"><strong>서울도시공간포털에서 열기</strong><small>{SEOUL_SECTIONS.join(' · ')}</small></a>}
-    </div>
-    {seoul && <p className="hint">서울도시공간포털은 해당 지번이 선택된 상태로 열립니다. 검색 결과의 지번을 누르면 위 항목을 볼 수 있습니다.</p>}
   </section>
 }

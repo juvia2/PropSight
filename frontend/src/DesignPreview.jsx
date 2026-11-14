@@ -4,7 +4,7 @@ import MapSurface from './components/MapSurface'
 import RecordSidebar from './components/RecordSidebar'
 import RecordDetailModal from './components/RecordDetailModal'
 import SavedNotes from './components/SavedNotes'
-import LandUsePlan from './features/public-data/LandUsePlan'
+import LandUsePlan, { LandUseLinks } from './features/public-data/LandUsePlan'
 import { CATEGORIES, COLORS } from './config'
 import './index.css'
 import './App.css'
@@ -67,7 +67,8 @@ export default function DesignPreview() {
               <p className="hint">시안 화면입니다. 실제 앱에서는 지도에서 지번을 검색하면 이 화면이 열리고 주소가 자동 입력됩니다.</p>
               <label>조회할 지번 주소<input readOnly value={samplePreviewParcel.address} /></label>
               <p className="public-parcel">{samplePreviewParcel.address}</p>
-              <div className="public-service-buttons"><button type="button"><strong>건축인허가</strong><small>기본개요 조회</small></button><button type="button"><strong>주택인허가</strong><small>기본개요 조회</small></button><button type="button"><strong>건축물대장</strong><small>표제부 조회</small></button></div>
+              <LandUseLinks parcel={samplePreviewParcel} />
+              <div className="public-service-buttons"><button type="button"><strong>건축인허가</strong><small>기본개요 조회</small></button><button type="button"><strong>주택인허가</strong><small>기본개요 조회</small></button></div>
               <LandUsePlan parcel={samplePreviewParcel} preview={samplePreviewResult} />
             </div></div></div>
           </section>}

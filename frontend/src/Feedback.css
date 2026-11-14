@@ -64,3 +64,6 @@
   .app .draft-panel textarea { min-height: 200px; }
   .app .saved-notes.is-collapsed { top: auto; bottom: 10px; left: 10px; border: 1px solid #dfe4eb; border-radius: 8px; }
 }
+.land-use-links-top { margin: 10px 0 14px; }
+.land-use-links-top .land-use-links { margin-top: 0; }
+.land-use-links-top .hint { margin: 8px 0 0; }
