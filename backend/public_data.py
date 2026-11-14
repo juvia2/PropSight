@@ -60,6 +60,14 @@ def services(user: CurrentUser):
              'configured': bool(key_for(kind)), 'source': config['source']}
             for kind, config in SERVICES.items()]
 
+@router.get('/api/public-data/client-config')
+def client_config(user: CurrentUser):
+    # VWorld blocks overseas servers (Render runs in Singapore), so land-use layers
+    # are queried from the user's browser. VWorld keys are bound to a registered
+    # domain, and only signed-in users receive it.
+    return {'vworld_key': key_for('land_use'),
+            'vworld_domain': os.getenv('VWORLD_DOMAIN') or os.getenv('RENDER_EXTERNAL_URL') or ''}
+
 def request_params(kind, pnu, page):
     key = key_for(kind)
     if not key:

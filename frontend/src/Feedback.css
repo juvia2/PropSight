@@ -1,0 +1,66 @@
+/* 2026-11-14 field feedback: search at the map's top-left, map-level cadastral toggle,
+   larger field memo and the docked parcel lookup. Loaded after the other sheets. */
+
+/* Location search: always open, top-left of the visible map (right of the left rail). */
+.app .location-search { top: 14px; bottom: auto; left: 366px; right: auto; width: 380px; max-width: calc(100% - 390px); transform: none; z-index: 9; }
+.app .map-panel:has(.saved-notes.is-collapsed) .location-search { left: 204px; max-width: calc(100% - 230px); }
+.app .map-panel.has-detail .location-search { left: calc(max(330px, min(390px, 36vw)) + 16px); max-width: calc(100% - max(330px, min(390px, 36vw)) - 32px); }
+.app .location-search-panel { margin-top: 0; }
+.app .location-search form { padding: 6px; border: 1px solid var(--brand-line, #e2e2e6); border-radius: 8px; box-shadow: 0 4px 18px #211a4318; }
+.app .location-search input { padding: 9px 11px; border: 0; background: transparent; font-size: 13px; }
+.app .location-search input:focus { outline: none; }
+.app .location-search form:focus-within { border-color: var(--brand-ink, #211a43); }
+.app .location-search form button { padding: 9px 16px; border-radius: 6px; background: var(--brand-ink, #211a43); color: #fff; font-size: 12px; font-weight: 600; }
+.app .location-results,.app .location-selected { border-color: var(--brand-line, #e2e2e6); border-radius: 8px; box-shadow: 0 8px 22px #211a4320; }
+.app .location-results li button:hover { background: #f5f4f8; }
+.app .location-results li button,.app .location-results strong,.app .location-selected strong { color: var(--brand-ink, #211a43); }
+.app .location-results li span,.app .location-selected span,.app .location-selected small { color: var(--brand-gray, #737373); }
+
+/* Record count and the cadastral overlay toggle sit together in the map's top-right corner. */
+.map-corner-controls { position: absolute; z-index: 4; top: 14px; right: 16px; display: flex; align-items: center; gap: 8px; }
+.app .map-corner-controls .workspace-summary { position: static; margin: 0; }
+.app .map-panel.has-detail .map-corner-controls .workspace-summary { display: none; }
+.cadastral-map-toggle { height: 34px; padding: 0 12px; border: 1px solid var(--brand-line, #e2e2e6); border-radius: 5px; background: #fff; color: var(--brand-ink, #211a43); font-size: 12px; font-weight: 600; box-shadow: 0 3px 12px #162c4515; white-space: nowrap; }
+.cadastral-map-toggle:hover:not(:disabled) { border-color: var(--brand-ink, #211a43); }
+.cadastral-map-toggle[aria-pressed=true] { border-color: var(--brand-red, #e60032); background: #fff1f4; color: var(--brand-red, #e60032); }
+.cadastral-map-toggle:disabled { opacity: .55; }
+
+/* Field memo: textarea about four times taller than before (90px → 360px). */
+.app .draft-panel { max-height: calc(100% - 40px); }
+.app .draft-panel-body { max-height: 1200px; }
+.app .draft-panel textarea { min-height: 360px; font-size: 13px; line-height: 1.7; }
+
+/* Parcel lookup docked in the left rail. */
+.lookup-panel .listing-detail-top span { width: 20px; }
+.lookup-panel .listing-detail-scroll { padding-top: 16px; }
+.lookup-panel .public-data { margin-top: 0; }
+.land-use { margin-top: 18px; padding: 14px; border: 1px solid var(--brand-line, #e2e2e6); border-radius: 8px; background: #fff; }
+.land-use-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.land-use-head h3 { margin: 0; color: var(--brand-ink, #211a43); font-size: 13px; }
+.land-use-head .refresh { padding: 6px 12px; font-size: 11px; }
+.land-use h4 { margin: 16px 0 6px; color: var(--brand-ink, #211a43); font-size: 12px; }
+.land-use-list { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--brand-line, #e2e2e6); }
+.land-use-list li { display: flex; flex-direction: column; gap: 2px; padding: 9px 0; border-bottom: 1px solid var(--brand-line, #e2e2e6); }
+.land-use-list strong { color: var(--brand-ink, #211a43); font-size: 12px; }
+.land-use-list span { color: var(--brand-gray, #737373); font-size: 10px; }
+.land-use-basic { margin: 12px 0 0; }
+.land-use-basic > div { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--brand-line, #e2e2e6); font-size: 11px; }
+.land-use-basic dt { color: var(--brand-gray, #737373); white-space: nowrap; }
+.land-use-basic dd { margin: 0; color: var(--brand-ink, #211a43); font-weight: 600; text-align: right; overflow-wrap: anywhere; }
+.land-use-links { display: grid; gap: 8px; margin-top: 14px; }
+.land-use-link { display: block; padding: 11px 12px; border: 1px solid var(--brand-line, #e2e2e6); border-radius: 7px; background: #faf9fb; color: var(--brand-ink, #211a43); text-decoration: none; }
+.land-use-link:hover { border-color: var(--brand-ink, #211a43); background: #f1eff5; }
+.land-use-link strong { display: block; font-size: 12px; }
+.land-use-link strong::after { content: ' ↗'; color: var(--brand-red, #e60032); }
+.land-use-link small { display: block; margin-top: 3px; color: var(--brand-gray, #737373); font-size: 10px; line-height: 1.5; }
+
+@media (max-width: 850px) {
+  .app .location-search { left: 291px; max-width: calc(100% - 310px); }
+}
+@media (max-width: 620px) {
+  .app .location-search,.app .map-panel:has(.saved-notes.is-collapsed) .location-search,.app .map-panel.has-detail .location-search { top: 10px; left: 10px; right: 10px; width: auto; max-width: none; }
+  .map-corner-controls { top: 62px; right: 10px; }
+  .app .map-corner-controls .workspace-summary { display: none; }
+  .app .draft-panel textarea { min-height: 200px; }
+  .app .saved-notes.is-collapsed { top: auto; bottom: 10px; left: 10px; border: 1px solid #dfe4eb; border-radius: 8px; }
+}

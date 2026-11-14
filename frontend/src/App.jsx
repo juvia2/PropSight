@@ -3,6 +3,7 @@ import './Workspace.css'
 import './ListingReference.css'
 import './AuthDesign.css'
 import './Palette.css'
+import './Feedback.css'
 import AuthGate from './AuthGate'
 import Dashboard from './Dashboard'
 

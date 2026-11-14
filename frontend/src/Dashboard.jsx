@@ -18,6 +18,8 @@ export default function Dashboard({ user, account }) {
   const [cadastral, setCadastral] = useState(false)
   const [lookupOpen, setLookupOpen] = useState(false)
   const [lookupBusy, setLookupBusy] = useState(false)
+  const [lookupParcel, setLookupParcel] = useState(null)
+  const [lookupAuto, setLookupAuto] = useState(false)
   const [search, setSearch] = useState('')
   const [draft, setDraft] = useState({ category: CATEGORIES[0], name: '', memo: '' })
 
@@ -35,7 +37,7 @@ export default function Dashboard({ user, account }) {
   const map = useKakaoMap({
     visible,
     cadastral,
-    onSelect: setEditing,
+    onSelect: item => { setLookupOpen(false); setEditing(item) },
     onDrawn: handleDrawn,
   })
 
@@ -53,8 +55,27 @@ export default function Dashboard({ user, account }) {
 
   const selectRecord = item => {
     map.focus(item)
+    setLookupOpen(false)
     setEditing(item)
   }
+
+  const openLookup = useCallback(() => {
+    if (lookupBusy) return
+    setEditing(null)
+    setLookupAuto(false)
+    setLookupOpen(true)
+  }, [lookupBusy, setEditing])
+
+  // A parcel chosen in the map search is prefilled; address (지번) searches also open the lookup.
+  const handleSearchParcel = useCallback((parcel, { open }) => {
+    if (lookupBusy) return
+    setLookupParcel(parcel)
+    setLookupAuto(open)
+    if (open) {
+      setEditing(null)
+      setLookupOpen(true)
+    }
+  }, [lookupBusy, setEditing])
 
   const refresh = () => {
     setError('')
@@ -63,7 +84,7 @@ export default function Dashboard({ user, account }) {
 
   return <div className="app">
     <header><a className="brand" href="/">▦ <span>PropSight<small>COMMERCIAL REAL ESTATE</small></span></a>
-      <MapToolbar items={records.items} active={active} onActiveChange={setActive} directory={records.directory} teamFilter={teamFilter} authorFilter={authorFilter} onTeamChange={setTeamFilter} onAuthorChange={setAuthorFilter} user={user} cadastral={cadastral} mapReady={map.status === 'ready'} onCadastralChange={() => setCadastral(value => !value)} onOpenLookup={() => setLookupOpen(true)} />
+      <MapToolbar items={records.items} active={active} onActiveChange={setActive} directory={records.directory} teamFilter={teamFilter} authorFilter={authorFilter} onTeamChange={setTeamFilter} onAuthorChange={setAuthorFilter} user={user} onOpenLookup={openLookup} />
       <div className="header-actions"><span className="account-name">{user.display_name}</span>{user.is_team_admin && <button className="account-link" onClick={account.issueInvite}>팀 초대</button>}<button className="account-link" disabled={account.busy} onClick={account.logout}>로그아웃</button><button className="header-refresh" onClick={refresh}>↻ 새로고침</button></div>
     </header>
     <main>
@@ -71,9 +92,8 @@ export default function Dashboard({ user, account }) {
       {account.error && <p role="alert" className="error">{account.error}</p>}
       {records.error && <div role="alert" className="error">{records.error}<button onClick={() => records.setError('')}>닫기</button></div>}
       <div className="dashboard">
-        <MapPanel controller={map} busy={records.busy} pending={records.pending} visibleCount={visible.length} editor={<RecordSidebar draft={draft} onDraftChange={setDraft} drawing={map.drawing} busy={records.busy} pending={records.pending} mapReady={map.status === 'ready'} onStartDrawing={startDrawing} onCancelDrawing={map.cancelDrawing} onRetry={() => records.createRecord(records.pending)} onDiscard={() => records.setPending(null)} />} notes={<SavedNotes visible={visible} itemCount={records.items.length} search={search} onSearchChange={setSearch} onSelect={selectRecord} />} detail={records.editing && <RecordDetailModal key={`${records.editing.resource}-${records.editing.id}`} record={records.editing} user={user} busy={records.busy} revisions={records.revisions} revisionStatus={records.revisionStatus} error={records.error} mapReady={map.status === 'ready'} onClose={() => records.setEditing(null)} onUpdate={records.updateRecord} onDelete={records.deleteRecord} onBusyChange={records.setBusy} />} />
+        <MapPanel controller={map} busy={records.busy} pending={records.pending} visibleCount={visible.length} editor={<RecordSidebar draft={draft} onDraftChange={setDraft} drawing={map.drawing} busy={records.busy} pending={records.pending} mapReady={map.status === 'ready'} onStartDrawing={startDrawing} onCancelDrawing={map.cancelDrawing} onRetry={() => records.createRecord(records.pending)} onDiscard={() => records.setPending(null)} />} notes={<SavedNotes visible={visible} itemCount={records.items.length} search={search} onSearchChange={setSearch} onSelect={selectRecord} />} cadastral={cadastral} onCadastralChange={() => setCadastral(value => !value)} onParcel={handleSearchParcel} detail={records.editing ? <RecordDetailModal key={`${records.editing.resource}-${records.editing.id}`} record={records.editing} user={user} busy={records.busy} revisions={records.revisions} revisionStatus={records.revisionStatus} error={records.error} mapReady={map.status === 'ready'} onClose={() => records.setEditing(null)} onUpdate={records.updateRecord} onDelete={records.deleteRecord} onBusyChange={records.setBusy} /> : lookupOpen ? <PublicDataLookupModal open busy={lookupBusy} mapReady={map.status === 'ready'} parcel={lookupParcel} autoLookup={lookupAuto} onBusyChange={setLookupBusy} onClose={() => setLookupOpen(false)} /> : null} />
       </div>
     </main>
-    <PublicDataLookupModal open={lookupOpen} busy={lookupBusy} mapReady={map.status === 'ready'} onBusyChange={setLookupBusy} onClose={() => setLookupOpen(false)} />
   </div>
 }

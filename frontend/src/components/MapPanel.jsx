@@ -2,12 +2,15 @@ import LocationSearch from '../LocationSearch'
 import { CATEGORIES, COLORS } from '../config'
 import MapSurface from './MapSurface'
 
-export default function MapPanel({ controller, busy, pending, visibleCount, editor, notes, detail }) {
+export default function MapPanel({ controller, busy, pending, visibleCount, editor, notes, detail, cadastral, onCadastralChange, onParcel }) {
   const { mapNode, getMap, status, error, drawing } = controller
   const mapReady = status === 'ready'
   return <section className={`map-panel ${detail ? 'has-detail' : ''}`} aria-label="카카오 지도">
     <div className="workspace-intro"><div className="workspace-kicker"><span>현장 지도</span><i /><span>기록</span></div><h1>현장 기록을<br />한눈에.</h1></div>
-    <p className="workspace-summary">지도에 표시 중 <strong>{visibleCount}</strong>건</p>
+    <div className="map-corner-controls">
+      <p className="workspace-summary">지도에 표시 중 <strong>{visibleCount}</strong>건</p>
+      <button type="button" className="cadastral-map-toggle" aria-pressed={cadastral} disabled={!mapReady} onClick={onCadastralChange} title="지적편집도는 참고용이며 현행 지적 정보와 다를 수 있습니다.">▦ 지적도{cadastral ? ' 켜짐' : ''}</button>
+    </div>
     <MapSurface>
       <div ref={mapNode} className="map" />
       {!mapReady && <div className="map-placeholder"><div className="map-grid" /><div className="setup">
@@ -20,7 +23,7 @@ export default function MapPanel({ controller, busy, pending, visibleCount, edit
         {status === 'error' && <button className="refresh" onClick={() => window.location.reload()}>다시 연결</button>}
       </div></div>}
     </MapSurface>
-    <LocationSearch getMap={getMap} enabled={mapReady} drawing={drawing || busy || !!pending} />
+    <LocationSearch getMap={getMap} enabled={mapReady} drawing={drawing || busy || !!pending} onParcel={onParcel} />
     {editor}
     {notes}
     {detail}

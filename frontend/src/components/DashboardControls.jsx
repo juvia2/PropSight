@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { CATEGORIES, COLORS, isSandboxTeamName } from '../config'
 
-export function MapToolbar({ items, active, onActiveChange, directory, teamFilter, authorFilter, onTeamChange, onAuthorChange, user, cadastral, mapReady, onCadastralChange, onOpenLookup }) {
+export function MapToolbar({ items, active, onActiveChange, directory, teamFilter, authorFilter, onTeamChange, onAuthorChange, user, onOpenLookup }) {
   const [filtersOpen, setFiltersOpen] = useState(false)
   const toggleCategory = category => onActiveChange(previous => previous.includes(category)
     ? previous.filter(value => value !== category)
@@ -13,11 +13,11 @@ export function MapToolbar({ items, active, onActiveChange, directory, teamFilte
         {CATEGORIES.map(category => <button key={category} type="button" aria-pressed={active.includes(category)} className={active.includes(category) ? 'selected' : ''} style={{ '--category': COLORS[category] }} onClick={() => toggleCategory(category)}><i />{category}<b>{items.filter(item => item.properties.category === category).length}</b></button>)}
       </div>
       <div className="toolbar-actions">
+        <button type="button" onClick={onOpenLookup}>자료 조회</button>
         <button type="button" aria-expanded={filtersOpen} aria-controls="canvas-filter-panel" onClick={() => setFiltersOpen(value => !value)}>필터</button>
       </div>
     </div>
     {filtersOpen && <div id="canvas-filter-panel" className="canvas-filter-panel">
-      <div className="canvas-filter-map-actions"><button type="button" aria-pressed={cadastral} disabled={!mapReady} onClick={onCadastralChange}>지적도</button><button type="button" onClick={onOpenLookup}>자료 조회</button></div>
       <label>팀<select value={teamFilter} onChange={event => { onTeamChange(event.target.value); onAuthorChange('') }}>
         <option value="">전체 팀</option>
         {directory.teams.map(team => <option key={team.id} value={team.id}>{team.name}{isSandboxTeamName(team.name) ? ' (시현 전용)' : ''}</option>)}
