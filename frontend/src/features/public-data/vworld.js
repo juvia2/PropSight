@@ -71,11 +71,11 @@ function insetPolygon(ring) {
   return `POLYGON((${points.join(',')}))`
 }
 
-const pick = (props, keys) => keys.map(key => props?.[key]).find(value => value !== undefined && value !== null && String(value).trim() !== '')
+const pick = (props, keys) => keys.map(key => props?.[key]).find(value => value !== undefined && value !== null && !['', '미분류'].includes(String(value).trim()))
 
 function describe(layer, feature) {
   const props = feature.properties || {}
-  const name = pick(props, ['uname', 'atr_nam', 'dgm_nm', 'scl_nam', 'mls_nam', 'lcl_nam']) || layer[2]
+  const name = pick(props, ['uname', 'dgm_nm', 'atr_nam', 'scl_nam', 'mls_nam', 'lcl_nam']) || layer[2]
   const year = pick(props, ['dyear'])
   const number = pick(props, ['dnum'])
   const notice = [year && year !== '0000' ? `${year}년` : '', number && number !== '0000' ? `고시 ${number}` : ''].filter(Boolean).join(' ')
